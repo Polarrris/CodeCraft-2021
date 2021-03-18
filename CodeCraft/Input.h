@@ -33,9 +33,11 @@ void generateHost(string &hostType,string &cpu,string &mm,string &hostCost,strin
     _host.hostType = _hostType;
     _host.cpu = string2Int(cpu);
     _host.mm = string2Int(mm);
+    _host.cmRatio = (float)_host.cpu / _host.mm;
     _host.hostCost = string2Int(hostCost);
     _host.dailyCost = string2Int(dailyCost);
     hosts.push_back(_host);
+    
 }
 
 //解析虚拟机信息
@@ -46,7 +48,7 @@ void generateVm(string &vmType,string &cpu,string &mm,string &isDuet){
     _vmProperties.cpu = string2Int(cpu);
     _vmProperties.mm = string2Int(mm);
     for(int i = 1; i < vmType.size() - 1; i++){
-        _vmProperties.isDuet += vmType[i];
+        _vmType += vmType[i];
     }
     if(isDuet[0] == '1')
         _vmProperties.isDuet = true;
@@ -59,10 +61,16 @@ void generateVm(string &vmType,string &cpu,string &mm,string &isDuet){
 //解析用户添加请求
 void generateRequest(string &vmType,string &vmId){
     RequestInfo _requestInfo;
+    vmType.substr(0,vmType.size() - 1);
     _requestInfo.infoType = add;
-    _requestInfo.vmType = vmType.substr(0,vmType.size() -1);
+    _requestInfo.vmType = vmType.substr(0,vmType.size() - 1);
     _requestInfo.vmId = string2Int(vmId);
     requestInfos.push_back(_requestInfo);
+#ifndef DEMO
+    //VmProperties vmp = vms[vmType.substr(0,vmType.size() - 1)];
+    
+        
+#endif
 }
 
 //解析用户删除请求

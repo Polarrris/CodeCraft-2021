@@ -1,339 +1,641 @@
 //
 //  main.cpp
-//  TestTarget
+//  CodeCraft
 //
-//  Created by Jesse Chou on 2021/3/14.
+//  Created by Jesse Chou on 2021/3/12.
 //
+
 
 #include <iostream>
+#include <list>
 #include <string>
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
 #include <ctime>
+#include <utility>
+#include <cstdio>
 #include <algorithm>
-#include <cassert>
+#include <math.h>
+#include <cmath>
+
+//#include "Input.h"
+//#include "Output.h"
+//#include "DataStructure.h"
+//#include "HostPlanning.h"
+//#include "VMMigration.h"
+//#include "VMDeployment.h"
 using namespace std;
 
-// 提交
-//#define UPLOAD
+#pragma mark DATA_STRUCTURE
+//结点枚举类型
+typedef enum : short {
+    A,
+    B,
+    Both
+} Node;
 
-#define TEST
+//请求信息枚举类型
+typedef enum : short {
+    add,
+    del
+} InfoType;
 
-// 服务器信息
-unordered_map<string,vector<int>> serverInfos;
-// 虚拟机信息
-unordered_map<string,vector<int>> vmInfos;
-// 请求信息
-vector<vector<string>> requestInfos;
+//主机信息
+struct Host {
+    string hostType;
+    int cpu;
+    int mm;
+    float cmRatio;
+    int hostCost;
+    int dailyCost;
+};
 
-// 购买的服务器信息
-int serverNumber = 0;
-unordered_map<int,vector<int>> sysServerResource;
+vector<Host> hosts;
 
-// 当前开机服务器
-vector<int> serverRunVms;
-// 记录虚拟机运行在那个服务器上
-unordered_map<string,vector<int>> vmOnServer;
+//虚拟机信息
+struct VmProperties {
+    int cpu;
+    int mm;
+    bool isDuet;  // true为双节点部署
+};
 
-vector<string> res;
+//虚拟机类型到信息的映射
+unordered_map <string, VmProperties> vms;
 
-#ifdef TEST
-    const string filePath = "/Users/jesse/Desktop/CodeCraft/training-data/training-1.txt";
-#endif
-// 成本
-long long SERVERCOST = 0,POWERCOST=0,TOTALCOST =0;
+//请求信息
+struct RequestInfo {
+    InfoType infoType;
+    string vmType;
+    int vmId;
+};
+vector<RequestInfo> requestInfos;
 
-// 按照服务器A点内存降序排序
-// std::sort(serverInfos.begin(),serverInfos.end(),cmpServerMemoryDown)
-// 按照服务器A点内存升序排序
-//bool cmpServerMemoryUp(const Server &server1, const Server &server2)
-//{
-//    return server1.memoryA>server2.memoryA;
-//}
+#pragma mark DeployedVM
 
-
-void generateServer(string &serverType,string &cpuCores,string &memorySize,string &serverCost,string &powerCost){
-    string _serverType="";
-    for(int i =1;i<serverType.size() -1;i++){
-        _serverType += serverType[i];
-    }
-    int _cpuCores =0,_memorySize=0,_serverCost=0,_powerCost=0;
-
-    for(int i=0;i<cpuCores.size() -1;i++){
-        _cpuCores = 10*_cpuCores + cpuCores[i] - '0';
-    }
-    for(int i=0;i<memorySize.size() -1;i++){
-        _memorySize = 10*_memorySize + memorySize[i] - '0';
-    }
-    for(int i=0;i<serverCost.size() -1;i++){
-        _serverCost = 10*_serverCost + serverCost[i] - '0';
-    }
-    for(int i=0;i<powerCost.size()-1;i++){
-        _powerCost = 10*_powerCost + powerCost[i] - '0';
-    }
-    serverInfos[_serverType] = vector<int>{_cpuCores/2 ,_cpuCores/2,_memorySize/2,_memorySize/2,_serverCost,_powerCost};
-}
-
-
-void generateVm(string &vmType,string &vmCpuCores,string &vmMemory,string &vmTwoNodes){
-    string _vmType;
-
-    for(int i=1;i<vmType.size() -1;i++){
-        _vmType += vmType[i];
+class DeployedVM {
+    
+public:
+    string type;
+    int date;
+    int host;
+    Node deployedNode;
+    int vmId;
+    
+    DeployedVM(const DeployedVM& deployedVM){
+        this->type = deployedVM.type;
+        this->date = deployedVM.date;
+        this->host = deployedVM.host;
+        this->deployedNode = deployedVM.deployedNode;
+        this->vmId = deployedVM.vmId;
+        //  cout<<"new a VM Id:  "<<vmId<<" on Host:"<<host<<endl;
     }
 
-    int _vmCpuCores = 0,_vmMemory=0,_vmTwoNodes=0;
-    for(int i=0;i<vmCpuCores.size()-1;i++){
-        _vmCpuCores = _vmCpuCores*10 + vmCpuCores[i] - '0';
+    DeployedVM(string type, int date, int host, Node deployedNode,int vmId){
+        this->type = type;
+        this->date = date;
+        this->host = host;
+        this->deployedNode = deployedNode;
+        this->vmId = vmId;
+        //  cout<<"new a VM Id:  "<<vmId<<" on Host:"<<host<<endl;
     }
-    for(int i=0;i<vmMemory.size()-1;i++){
-        _vmMemory = _vmMemory*10 + vmMemory[i] - '0';
-    }
-    if(vmTwoNodes[0] == '1'){
-        _vmTwoNodes = 1;
-    }
-    else{
-        _vmTwoNodes =0;
-    }
-    vmInfos[_vmType] = vector<int>{_vmCpuCores,_vmMemory,_vmTwoNodes};
-}
-
-// 解析用户添加请求
-void generateRequest(string &op,string &reqVmType,string &reqId){
-    string _op,_reqVmType,_reqId;
-    _op = op.substr(1,op.size() -1);
-    _reqVmType = reqVmType.substr(0,reqVmType.size() -1);
-    _reqId = reqId.substr(0,reqId.size() -1);
-    requestInfos.push_back(vector<string>{_op,_reqVmType,_reqId});
-}
-
-// 解析用户删除请求
-void generateRequest(string &op,string &reqId){
-    string _op,_reqId;
-    _reqId = reqId.substr(0,reqId.size() -1);
-    _op = op.substr(1,op.size() -1);
-    requestInfos.push_back(vector<string>{_op,_reqId});
-}
-
-// 尝试在服务器上分配虚拟机资源
-bool choseServer(vector<int> &server,vector<int> &vm,int serverId,string vmId){
-    int vmCores = vm[0],vmMemory = vm[1],vmTwoNodes = vm[2];
-    int &serverCoreA = server[0],&serverCoreB = server[1],&serverMemoryA = server[2],&serverMemoryB = server[3];
-    if(vmTwoNodes){
-        int needCores = vmCores/2,needMemory = vmMemory/2;
-        if(serverCoreA >= needCores && serverCoreB >=needCores && serverMemoryA >= needMemory && serverMemoryB >= needMemory){
-            serverCoreA -= needCores;
-            serverCoreB -= needCores;
-            serverMemoryA -= needMemory;
-            serverMemoryB -= needMemory;
-            vmOnServer[vmId] = vector<int>{serverId,vmCores,vmMemory,1,2};
-            res.push_back("("+to_string(serverId)+")\n");
-            return true;
+    friend bool operator == (const DeployedVM& first, const DeployedVM& second)
+        {
+            return first.vmId == second.vmId;
         }
-        else{
-            return false;
+};
+
+//虚拟机id到其节点的映射
+unordered_map <int, DeployedVM*> vmIdToDeployedVM;
+
+
+
+#pragma mark PurchasedHost
+class PurchasedHost {
+public:
+    int cpu;
+    int mm;
+    int remainCpuA;
+    int remainMmA;
+    int remainCpuB;
+    int remainMmB;
+    float remainCMRatioA;
+    float remainCMRatioB;
+    float remainCMRatioBoth;
+    
+    bool isDuet;    //购买时决定
+    
+    list<DeployedVM>* listDVMA;
+    list<DeployedVM>* listDVMB;
+    list<DeployedVM>* listDVMBoth;
+
+    PurchasedHost(const PurchasedHost& purchasedHost){
+        this->remainCpuA = purchasedHost.remainCpuA;
+        this->remainCpuB = purchasedHost.remainCpuB;
+        this->remainMmA = purchasedHost.remainMmA;
+        this->remainMmB = purchasedHost.remainMmB;
+        this->cpu = purchasedHost.cpu;
+        this->mm = purchasedHost.mm;
+        this->remainCMRatioA = purchasedHost.remainCMRatioA;
+        this->remainCMRatioB = purchasedHost.remainCMRatioB;
+        this->remainCMRatioBoth = purchasedHost.remainCMRatioBoth;
+        this->isDuet = purchasedHost.isDuet;
+        this->listDVMA = new list<DeployedVM>();
+        for(auto It = purchasedHost.listDVMA->begin(); It!= purchasedHost.listDVMA->end();It++){
+            this->listDVMA->push_back(*It);
         }
-    }
-    else if(serverCoreA >= vmCores && serverMemoryA >= vmMemory){
-        serverCoreA -= vmCores;
-        serverMemoryA -= vmMemory;
-        vmOnServer[vmId] = vector<int>{serverId,vmCores,vmMemory,1};
-        res.push_back("("+to_string(serverId)+", A)\n");
-        return true;
-    }
-    else if(serverCoreB >= vmCores && serverMemoryB >= vmMemory){
-        serverCoreB -= vmCores;
-        serverMemoryB -= vmMemory;
-        vmOnServer[vmId] = vector<int>{serverId,vmCores,vmMemory,2};
-        res.push_back("("+to_string(serverId)+", B)\n");
-        return true;
-    }
-    return false;
-}
-
-
-// 处理创建虚拟机操作
-int createVM(vector<string> &createVmInfo){
-    string _reqVmType = createVmInfo[1],_reqId = createVmInfo[2];
-    vector<int> vm = vmInfos[_reqVmType];
-    int success = -1;
-    for(int i=0;i<serverNumber;i++){
-        auto &server = sysServerResource[i];
-        if(choseServer(server,vm,i,_reqId)) {
-            serverRunVms[i]++;
-            success = 1;
-            break;
+        this->listDVMB = new list<DeployedVM>();
+        for(auto It = purchasedHost.listDVMB->begin(); It!= purchasedHost.listDVMB->end();It++){
+            this->listDVMB->push_back(*It);
         }
-        assert(server[0]>=0 && server[1]>=0 && server[2]>=0 && server[3]>=0);
-    }
-    return success;
-}
-
-// 处理删除虚拟机操作
-void delVM(vector<string> &delVmInfo){
-    string _vmId = delVmInfo[1];
-    vector<int> _vmInfo = vmOnServer[_vmId];
-    int _serverId = _vmInfo[0];
-
-    serverRunVms[_serverId]--;
-
-    vector<int> &server = sysServerResource[_serverId];
-    if(_vmInfo.size() == 5){
-        int cores = _vmInfo[1]/2,memory = _vmInfo[2]/2;
-        server[0] += cores;
-        server[1] += cores;
-        server[2] += memory;
-        server[3] += memory;
-    }
-    else{
-        int cores = _vmInfo[1],memory = _vmInfo[2];
-        if(_vmInfo[3] == 1){
-            server[0] += cores;
-            server[2] += memory;
-        }else{
-            server[1] += cores;
-            server[3] += memory;
+         this->listDVMBoth = new list<DeployedVM>();
+        for(auto It = purchasedHost.listDVMBoth->begin(); It!= purchasedHost.listDVMBoth->end();It++){
+            this->listDVMBoth->push_back(*It);
         }
     }
-}
 
-// 初始化server，如何初始化购买的服务器是一个大的优化
-void bugServer(){
-    string serverType = "hostUY41I";
-    int n =2500;
-    serverRunVms.resize(n,0);
-    string initBuy = "(purchase, ";
-    initBuy += to_string(2)+")\n";
-
-    res.push_back(initBuy);
-
-    string pauseInfo ="("+serverType+", ";
-    pauseInfo+= std::to_string(n/2)+")\n";
-
-    res.push_back(pauseInfo);
-
-    for(int i=0;i<n/2;i++){
-        sysServerResource[serverNumber++] = serverInfos[serverType];
-        SERVERCOST += serverInfos[serverType][4];
-
+    PurchasedHost()
+    {
+        cpu = 0;
+        mm = 0;
+        listDVMA = new list<DeployedVM>;
+        listDVMB = new list<DeployedVM>;
+        listDVMBoth = new list<DeployedVM>;
     }
-    serverType = "host78BMY";
-    pauseInfo ="("+serverType+", ";
-    pauseInfo+= std::to_string(serverNumber)+")\n";
-
-    res.push_back(pauseInfo);
-
-    for(int i=0;i<n/2;i++){
-        sysServerResource[serverNumber++] = serverInfos[serverType];
-        SERVERCOST += serverInfos[serverType][4];
+    
+    PurchasedHost(int cpu, int mm){
+        remainCpuA = cpu/2;
+        remainCpuB = cpu/2;
+        remainMmA = mm/2;
+        remainMmB = mm/2;
+        remainCMRatioBoth = remainCMRatioA = remainCMRatioB = (float)cpu / mm;
+        listDVMA = new list<DeployedVM>();
+        listDVMB = new list<DeployedVM>();
+        listDVMBoth = new list<DeployedVM>();
     }
-
-}
-
-// 扩容服务器策略
-void expansion(){
-    string s = "(purchase, 0)\n";
-    res.push_back(s);
-}
-
-// 迁移虚拟机策略
-void migrate(){
-    string s = "(migration, 0)\n";
-    res.push_back(s);
-}
-
-// 分配策略
-void match(int day){
-    if(day!=0) expansion();
-    migrate();
-//    printf("There are %d requests waiting to matching !!\n",requestInfos.size());
-    for(auto req:requestInfos){
-        // 创建虚拟机 还是 删除虚拟机
-        int opType = req.size() == 3 ? 1:0;
-        if(opType){
-            int resourceEnough = createVM(req);
-            assert(resourceEnough != -1);
-        }
-        else{
-            // 修复删除虚拟机bug
-            delVM(req);
-        }
+    
+    DeployedVM* addSingleA(string type, int index, int date, int vmId){
+        remainCpuA = remainCpuA - vms[type].cpu;
+        remainMmA = remainMmA - vms[type].mm;
+        DeployedVM tmpVM(type, date, index, A, vmId);
+        listDVMA->push_front(tmpVM);
+        vmIdToDeployedVM[vmId] = &listDVMA->front();
+        //  cout<<vmId<<" host:"<<vmIdToDeployedVM[vmId]->host<<"Node "<<vmIdToDeployedVM[vmId]->deployedNode;
+        //  cout<<"show!\n";
+        //  for(auto It = vmIdToDeployedVM.begin();It!=vmIdToDeployedVM.end();It++){
+        //         cout<<It->first<<"  hostId:"<<It->second->host<<"  node:"<<It->second->deployedNode<<endl;
+        //     }
+        remainCMRatioA = (float)remainCpuA / remainMmA;
+        return &listDVMA->front();
     }
-}
-
-void serverPower(){
-    for(int i=0;i<serverNumber;i++){
-        if(serverRunVms[i] != 0){
-            POWERCOST += sysServerResource[i][5];
-        }
+    
+    DeployedVM* addSingleB(string type, int index, int date, int vmId){
+        remainCpuB = remainCpuB - vms[type].cpu;
+        remainMmB = remainMmB - vms[type].mm;
+        DeployedVM tmpVM(type, date, index, B, vmId);
+        listDVMB->push_front(tmpVM);
+        vmIdToDeployedVM[vmId] = &listDVMB->front();
+        //  cout<<vmId<<" host:"<<vmIdToDeployedVM[vmId]->host<<"Node "<<vmIdToDeployedVM[vmId]->deployedNode;
+        //  cout<<"show!\n";
+        //  for(auto It = vmIdToDeployedVM.begin();It!=vmIdToDeployedVM.end();It++){
+        //         cout<<It->first<<"  hostId:"<<It->second->host<<"  node:"<<It->second->deployedNode<<endl;
+        //     }
+        remainCMRatioB = (float)remainCpuB / remainMmB;
+        return &listDVMB->front();
     }
-}
-
-
-int main() {
-    clock_t start, finish;
-    start = clock();
-#ifdef TEST
-    std::freopen(filePath.c_str(),"rb",stdin);
-#endif
-    int serverNum;
-    string serverType,cpuCores,memorySize,serverCost,powerCost;
-    scanf("%d",&serverNum);
-
-    for(int i =0;i<serverNum;i++){
-        cin>>serverType>>cpuCores>>memorySize>>serverCost>>powerCost;
-        generateServer(serverType,cpuCores,memorySize,serverCost,powerCost);
+    
+    DeployedVM* addBoth(string type, int index, int date, int vmId){
+        remainCpuA = remainCpuA - vms[type].cpu/2;
+        remainMmA = remainMmA - vms[type].mm/2;
+        remainCpuB = remainCpuB - vms[type].cpu/2;
+        remainMmB = remainMmB - vms[type].mm/2;
+        DeployedVM tmpVM(type, date, index, Both, vmId);
+        listDVMBoth->push_front(tmpVM);
+        vmIdToDeployedVM[vmId] = &listDVMBoth->front();
+        // cout<<vmId<<" host:"<<vmIdToDeployedVM[vmId]->host<<"Node "<<vmIdToDeployedVM[vmId]->deployedNode;
+        // cout<<"show!\n";
+        //  for(auto It = vmIdToDeployedVM.begin();It!=vmIdToDeployedVM.end();It++){
+        //         cout<<It->first<<"  hostId:"<<It->second->host<<"  node:"<<It->second->deployedNode<<endl;
+        //     }
+        remainCMRatioBoth = (float)(remainCpuA+remainCpuB) / (remainMmA+remainMmB);
+        return &listDVMBoth->front();
     }
-
-    int vmNumber = 0;
-    scanf("%d",&vmNumber);
-
-    string vmType,vmCpuCores,vmMemory,vmTwoNodes;
-    for(int i =0;i<vmNumber;i++){
-        cin>>vmType>>vmCpuCores>>vmMemory>>vmTwoNodes;
-        generateVm(vmType,vmCpuCores,vmMemory,vmTwoNodes);
-    }
-
-    int requestdays = 0,dayRequestNumber = 0;
-    scanf("%d",&requestdays);
-    string op,reqVmType,reqId;
-
-    // 开始处理请求
-    bugServer();
-    for(int day=0;day<requestdays;day++){
-        scanf("%d",&dayRequestNumber);
-        requestInfos.clear();
-        for(int i =0;i<dayRequestNumber;i++){
-            cin>>op;
-            if(op[1] == 'a'){
-                cin>>reqVmType>>reqId;
-                generateRequest(op,reqVmType,reqId);
+    
+    void updateRemainResAfterDelete(DeployedVM& vm){
+            string type = vm.type;
+            Node _node = vm.deployedNode;
+            int cpuNum = vms[type].cpu;
+            int mmNum = vms[type].mm;
+            if (_node == A)
+            {
+                remainCpuA += cpuNum;
+                remainMmA += mmNum;
+                remainCMRatioA = (float)remainCpuA / remainMmA;
+            }else if(_node == B){
+                remainCpuB += cpuNum;
+                remainMmB += mmNum;
+                remainCMRatioB = (float)remainCpuB / remainMmB;
             }else{
-                cin>>reqId;
-                generateRequest(op,reqId);
+                remainCpuA += cpuNum/2;
+                remainMmA += mmNum/2;
+                remainCpuB += cpuNum/2;
+                remainMmB += mmNum/2;
+                remainCMRatioBoth = (float)(remainCpuA+remainCpuB) / (remainMmA+remainMmB);
             }
         }
-#ifdef TEST
-        if(day == 0 || (day+1)%100 == 0){
-            printf("The %d day begin matching!!!\n",day+1);
+
+        void delvm(DeployedVM& deletedVM)
+        {
+            // cout<<"delete "<<deletedVM.host<<endl;
+            // e.g.
+            updateRemainResAfterDelete(deletedVM);
+            listDVMA->remove(deletedVM);     //！！！ pay attention！！！
+            //TODO
+            // update remain resource
         }
-#endif
-        match(day);
-        serverPower();
-//        break;
+
+        bool isRemainResourceAvailForA(int _cpu, int _mm)
+        {
+            if((_cpu <= remainCpuA) && (_mm <= remainMmA))
+                return true;
+            else
+                return false;
+        }
+
+        bool isRemainResourceAvailForB(int _cpu, int _mm)
+        {
+            if((_cpu <= remainCpuB) && (_mm <= remainMmB))
+                return true;
+            else
+                return false;
+        }
+
+        bool isRemainResourceAvailForBoth(int _cpu, int _mm)
+        {
+            if((_cpu / 2 <= remainCpuA) && (_mm / 2 <= remainMmA) && (_cpu / 2 <= remainCpuB) && (_mm / 2 <= remainMmB))
+                return true;
+            else
+                return false;
+        }
+    
+    //    int updateRemainResource(node wantedNode){
+    //        int tmp1=0,tmp2=0;
+    //        if (wantedNode == A) {
+    //            list <DeployedVM>::iterator p_listDVMA;
+    //            for (p_listDVMA=listDVMA.begin(); p_listDVMA!=listDVMA.end(); ++p_listDVMA) {
+    //                tmp1 += vms[p_listDVMA->type].cpu;
+    //                tmp2 += vms[p_listDVMA->type].mm;
+    //            }
+    //
+    //            if (!listDVMBoth.empty()) {
+    //                list <DeployedVM>::iterator p_listDVMBoth;
+    //                for (p_listDVMBoth=listDVMBoth.begin(); p_listDVMBoth!=listDVMBoth.end(); ++p_listDVMBoth) {
+    //                    tmp1 += vms[p_listDVMBoth->type].cpu;
+    //                    tmp2 += vms[p_listDVMBoth->type].mm;
+    //                }
+    //            }
+    //
+    //            remainCpuA = (cpu/2)-tmp1;
+    //            remainMmA = (mm/2)-tmp2;
+    //        }
+    //        if (wantedNode == B) {
+    //            list <DeployedVM>::iterator p_listDVMB;
+    //            for (p_listDVMB=listDVMA.begin(); p_listDVMB!=listDVMA.end(); ++p_listDVMB) {
+    //                tmp1 += vms[p_listDVMB->type].cpu;
+    //                tmp2 += vms[p_listDVMB->type].mm;
+    //            }
+    //
+    //            if (!listDVMBoth.empty()) {
+    //                list <DeployedVM>::iterator p_listDVMBoth;
+    //                for (p_listDVMBoth=listDVMBoth.begin(); p_listDVMBoth!=listDVMBoth.end(); ++p_listDVMBoth) {
+    //                    tmp1 += vms[p_listDVMBoth->type].cpu;
+    //                    tmp2 += vms[p_listDVMBoth->type].mm;
+    //                }
+    //            }
+    //
+    //            remainCpuA = (cpu/2)-tmp1;
+    //            remainMmA = (mm/2)-tmp2;
+    //        }
+    //
+    //
+    //
+    //        return 0;
+    //    }
+    
+    ~PurchasedHost(){
+        // cout<<"~~function"<<endl;
+        // cout<<this->listDVMA->size()<<endl;
+        // delete listDVMA;
+        // delete listDVMB;
+        // delete listDVMBoth;
+
+        // cout<<"delHost\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+        // listDVMA->clear();
+        // listDVMBoth->clear();
+        // listDVMB->clear();
+        // cout<<this->listDVMA->size()<<endl;
+
     }
+};
 
-    fclose(stdin);
+//已购买的主机
+vector<PurchasedHost> *purchasedHosts = new vector<PurchasedHost>;
+
+
+#pragma mark INPUT
+/*
+ 
+ 解析输入过程定义
+ 
+ */
+
+int string2Int(string s){
+    int _tmp = 0;
+    for(int i = 0; i < s.size() - 1; i++){
+        _tmp = 10 * _tmp + s[i] - '0';
+    }
+    return _tmp;
+}
+
+//解析主机信息
+void generateHost(string &hostType,string &cpu,string &mm,string &hostCost,string &dailyCost){
+    string _hostType="";
+    for(int i = 1; i < hostType.size() - 1; i++){
+        _hostType += hostType[i];
+    }
+    Host _host;
+    _host.hostType = _hostType;
+    _host.cpu = string2Int(cpu);
+    _host.mm = string2Int(mm);
+    _host.cmRatio = (float)_host.cpu / _host.mm;
+    _host.hostCost = string2Int(hostCost);
+    _host.dailyCost = string2Int(dailyCost);
+    hosts.push_back(_host);
+    
+}
+
+//解析虚拟机信息
+void generateVm(string &vmType,string &cpu,string &mm,string &isDuet){
+    string _vmType;
+    VmProperties _vmProperties;
+    
+    _vmProperties.cpu = string2Int(cpu);
+    _vmProperties.mm = string2Int(mm);
+    for(int i = 1; i < vmType.size() - 1; i++){
+        _vmType += vmType[i];
+    }
+    if(isDuet[0] == '1')
+        _vmProperties.isDuet = true;
+    else
+        _vmProperties.isDuet = false;
+    
+    vms.insert(pair<string,VmProperties>(_vmType, _vmProperties));
+}
+
+//解析用户添加请求
+void generateRequest(string &vmType,string &vmId){
+    RequestInfo _requestInfo;
+    vmType.substr(0,vmType.size() - 1);
+    _requestInfo.infoType = add;
+    _requestInfo.vmType = vmType.substr(0,vmType.size() - 1);
+    _requestInfo.vmId = string2Int(vmId);
+    requestInfos.push_back(_requestInfo);
+}
+
+//解析用户删除请求
+void generateRequest(string &vmId){
+    RequestInfo _requestInfo;
+    _requestInfo.infoType = del;
+    _requestInfo.vmId = string2Int(vmId);
+    requestInfos.push_back(_requestInfo);
+}
+
+#pragma mark OUTPUT
+//使用全局变量
+//vector<RequestInfo>& requestInfos
+//unordered_map <int, DeployedVM*> vmIdToDeployedVM;
+void outputDeploymentResult(){
+    for(auto it = requestInfos.begin(); it != requestInfos.end(); it++){
+        if (it->infoType == add)
+        {
+            // cout<<"vmID: "<<it->vmId<<"HostId: "<<vmIdToDeployedVM[it->vmId]->host<<endl;
+            if(vmIdToDeployedVM[it->vmId]->deployedNode == A){
+                printf("(%d,A)\n",vmIdToDeployedVM[it->vmId]->host);
+
+            }else if (vmIdToDeployedVM[it->vmId]->deployedNode == B)
+            {
+                printf("(%d,B)\n",vmIdToDeployedVM[it->vmId]->host);
+            }else{
+                printf("(%d)\n",vmIdToDeployedVM[it->vmId]->host);
+            }
+        }
+    }
+}
+
+int main(){
+    list<string> buyMsg;
+    clock_t start, finish;
+    start = clock();
+//TEST
+    const string filePath = "/Users/jesse/Desktop/CodeCraft/training-data/training-1.txt";
+    //输入
+        freopen(filePath.c_str(),"rb",stdin);
+//    if(true){
+        //解析hosts信息
+        int hostCount = 0;
+        scanf("%d",&hostCount);
+        string hostType,cpu,mm,hostCost,dailyCost;
+        for(int i =0;i<hostCount;i++){
+            cin>>hostType>>cpu>>mm>>hostCost>>dailyCost;
+            generateHost(hostType,cpu,mm,hostCost,dailyCost);
+        }
+        
+        //解析vmProperties信息
+        int vmCount = 0;
+        scanf("%d",&vmCount);
+        string vmType,isDuet;
+        for(int i = 0; i < vmCount; i++){
+            cin>>vmType>>cpu>>mm>>isDuet;
+            generateVm(vmType,cpu,mm,isDuet);
+        }
+        
+        //解析用户请求天数
+        int dayCount = 0, requestCount = 0;
+        scanf("%d",&dayCount);
+        string tmp,infoType,vmId;
+        //开始处理每天的请求
+        for(int day = 0; day < dayCount; day++){
+            buyMsg.clear();
+            
+            scanf("%d",&requestCount);
+            requestInfos.clear();
+            for(int i = 0; i < requestCount; i++){
+                cin>>infoType;
+                if(infoType[1] == 'a'){
+                    cin>>vmType>>vmId;
+                    generateRequest(vmType,vmId);
+                }
+                else{
+                    cin>>vmId;
+                    generateRequest(vmId);
+                }
+            }
+            /*
+             
+                VMDeployment???
+                输入：HostPlanning的结果
+                    当天用户的所有请求
+             
+             */
+            for(int i = 0; i < requestCount; ++i){
+                if(requestInfos[i].infoType == add)
+                {
+                    bool isDuetOfVm = vms[requestInfos[i].vmType].isDuet;
+                    float cmRatioOfVm = (float)vms[requestInfos[i].vmType].cpu / vms[requestInfos[i].vmType].mm;
+                    float mincmRatioDiff = 10000.0;
+                    PurchasedHost* bestHost = nullptr;
+                    int bestHostIndex = -1;
+                    Node bestHostNode;          // A节点或B节点
+
+                    for(int j = 0; j < purchasedHosts->size(); ++j)
+                    {
+                        if(isDuetOfVm && purchasedHosts->at(j).isDuet)
+                        {
+                            if(purchasedHosts->at(j).isRemainResourceAvailForBoth(vms[requestInfos[i].vmType].cpu, vms[requestInfos[i].vmType].mm))
+                            {
+                                float thiscmRatioDiff = fabs(purchasedHosts->at(j).remainCMRatioBoth / (double)cmRatioOfVm - 1);
+                                if(thiscmRatioDiff < mincmRatioDiff)
+                                {
+                                    mincmRatioDiff = thiscmRatioDiff;
+                                    bestHost = &purchasedHosts->at(j);
+                                    bestHostIndex = j;
+                                    bestHostNode = Both;
+                                }
+                            }
+                            // else
+                            // {
+                            //     // TODO
+                            //     // try to replace and optimize
+                            // }
+                        }
+                        if(!isDuetOfVm && !purchasedHosts->at(j).isDuet)
+                        {
+                            // TODO
+                            // single deployment
+                            if(purchasedHosts->at(j).isRemainResourceAvailForA(vms[requestInfos[i].vmType].cpu, vms[requestInfos[i].vmType].mm))
+                            {
+                                float thiscmRatioDiff = fabs(purchasedHosts->at(j).remainCMRatioA / (double)cmRatioOfVm - 1);
+                                if(thiscmRatioDiff < mincmRatioDiff)
+                                {
+                                    mincmRatioDiff = thiscmRatioDiff;
+                                    bestHost = &purchasedHosts->at(j);
+                                    bestHostIndex = j;
+                                    bestHostNode = A;
+                                }
+                            }
+                            if(purchasedHosts->at(j).isRemainResourceAvailForB(vms[requestInfos[i].vmType].cpu, vms[requestInfos[i].vmType].mm))
+                            {
+                                float thiscmRatioDiff = fabs(purchasedHosts->at(j).remainCMRatioB / (double)cmRatioOfVm - 1);
+                                if(thiscmRatioDiff < mincmRatioDiff)
+                                {
+                                    mincmRatioDiff = thiscmRatioDiff;
+                                    bestHost = &purchasedHosts->at(j);
+                                    bestHostIndex = j;
+                                    bestHostNode = B;
+                                }
+                            }
+                        }
+                    }
+
+                    //没找到，要买了
+                    if(bestHostIndex == -1)
+                    {
+                        // cout<<requestInfos[i].infoType<<requestInfos[i].vmType<<vms[requestInfos[i].vmType].isDuet<<endl;
+                        /////////////////////////////////////////////////////////////////////
+                        // TODO
+                        // purchase new host and deploy vm on that
+                        float mincmRatioDiff = 10000.0;
+                        int purchasedBestHostIndex = -1;
+                        string purchasedBestHostType;
+                        for(int j = 0; j < hosts.size(); ++j)
+                        {
+                            float thiscmRatioDiff = fabs(hosts[j].cmRatio / (float)cmRatioOfVm - 1);
+                            if(thiscmRatioDiff < mincmRatioDiff)
+                            {
+                                mincmRatioDiff = thiscmRatioDiff;
+                                purchasedBestHostIndex = j;
+                            }
+                        }
+                        bestHost = new PurchasedHost(hosts[purchasedBestHostIndex].cpu, hosts[purchasedBestHostIndex].mm);
+                        purchasedHosts->push_back(*bestHost);
+                        // cout<<"vector size: "<<purchasedHosts->size()<<endl;
+                        // cout<<purchasedHosts->back().listDVMA->size();
+                        // cout<<purchasedHosts->back().listDVMB->size();
+                        // cout<<purchasedHosts->back().listDVMBoth->size()<<endl;
+                        // cout<<&purchasedHosts->back().listDVMA<<endl<<&bestHost->listDVMA<<endl;
+
+
+                        // delete bestHost;
+                        
+                        
+                        // cout<<purchasedHosts->back().listDVMA->size();
+                        // cout<<purchasedHosts->back().listDVMB->size();
+                        // cout<<purchasedHosts->back().listDVMBoth->size();
+
+                        bestHost = &purchasedHosts->back();
+                        // cout<<purchasedHosts->back().listDVMA->size();
+                        // cout<<purchasedHosts->back().listDVMB->size();
+                        // cout<<purchasedHosts->back().listDVMBoth->size();
+                        bestHostIndex = purchasedHosts->size() - 1;
+                        buyMsg.push_back("("+hosts[purchasedBestHostIndex].hostType+",1)\n");
+    
+                        if(isDuetOfVm)
+                        {
+                            bestHost->isDuet = true;
+                            bestHost->addBoth(requestInfos[i].vmType, bestHostIndex, day, requestInfos[i].vmId);
+                        }
+                        else
+                        {
+                            bestHost->isDuet = false;
+                            bestHost->addSingleA(requestInfos[i].vmType, bestHostIndex, day, requestInfos[i].vmId);
+                        }
+                    }
+
+                    // TODO
+                    // deploy
+                    else
+                    {
+                        if(isDuetOfVm)
+                            bestHost->addBoth(requestInfos[i].vmType, bestHostIndex, day, requestInfos[i].vmId);
+                        else
+                        {
+                            if(bestHostNode == A)
+                                bestHost->addSingleA(requestInfos[i].vmType, bestHostIndex, day, requestInfos[i].vmId);
+                            else if(bestHostNode == B)
+                                bestHost->addSingleB(requestInfos[i].vmType, bestHostIndex, day, requestInfos[i].vmId);
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    purchasedHosts->at(vmIdToDeployedVM[requestInfos[i].vmId]->host).delvm(*vmIdToDeployedVM[requestInfos[i].vmId]);
+                }
+            }
+                printf("(purchase,%lu)\n",buyMsg.size());
+                for (auto it = buyMsg.begin(); it != buyMsg.end(); it++)
+                {
+                    printf("%s",(*it).c_str());
+                }
+                
+                // cout<<day<<"day"<<endl;
+                printf("(migration, 0)\n");
+                outputDeploymentResult();
+        }
+        
+//    }
+    // fclose(stdin);
     finish = clock();
-    TOTALCOST = SERVERCOST + POWERCOST;
-#ifdef UPLOAD
-    for (auto &s:res) std::cout<<s;
-#endif
-#ifdef TEST
-    printf("\nusr time: %f s \n",double(finish - start) / CLOCKS_PER_SEC);
-    printf("server cost: %lld \npower cost: %lld \ntotal cost: %lld \n",SERVERCOST,POWERCOST,TOTALCOST);
-#endif
-
+//    printf("\nuse time: %f s \n",double(finish - start) / CLOCKS_PER_SEC);
     return 0;
 }
 
