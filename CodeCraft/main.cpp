@@ -10,6 +10,7 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include <ctime>
 #include <utility>
@@ -21,16 +22,11 @@
 #include "Input.h"
 #include "Output.h"
 #include "DataStructure.h"
-#include "HostPlanning.h"
-#include "VMMigration.h"
-#include "VMDeployment.h"
 using namespace std;
 
 
-
-
-
 int main(){
+    map<int, int> todayPurchasePlan;
     list<string> buyMsg;
     clock_t start, finish;
     start = clock();
@@ -60,9 +56,10 @@ int main(){
         int dayCount = 0, requestCount = 0;
         scanf("%d",&dayCount);
         string tmp,infoType,vmId;
+        int lastDayPurchasedHostCount = purchasedHosts->size();
         //开始处理每天的请求
         for(int day = 0; day < dayCount; day++){
-            buyMsg.clear();
+            //buyMsg.clear();
             
             scanf("%d",&requestCount);
             requestInfos.clear();
@@ -94,8 +91,12 @@ int main(){
                     int bestHostIndex = -1;
                     Node bestHostNode;          // A节点或B节点
 
+                    // 尝试在已有的主机上部署
                     for(int j = 0; j < purchasedHosts->size(); ++j)
                     {
+                        if (j>300&&j<purchasedHosts->size()*0.9) {
+                            j = j + rand()%6;
+                        }
                         if(isDuetOfVm && purchasedHosts->at(j).isDuet)
                         {
                             if(purchasedHosts->at(j).isRemainResourceAvailForBoth(vms[requestInfos[i].vmType].cpu, vms[requestInfos[i].vmType].mm))
@@ -157,13 +158,22 @@ int main(){
                         for(int j = 0; j < hosts.size(); ++j)
                         {
                             float thiscmRatioDiff = fabs(hosts[j].cmRatio / (float)cmRatioOfVm - 1);
-                            if(thiscmRatioDiff < mincmRatioDiff)
+                            if(!isDuetOfVm)
                             {
-                                mincmRatioDiff = thiscmRatioDiff;
-                                purchasedBestHostIndex = j;
+                                    if(thiscmRatioDiff < mincmRatioDiff&&hosts[j].cpu>=vms[requestInfos[i].vmType].cpu*2&&hosts[j].mm>=vms[requestInfos[i].vmType].mm*2)
+                                {
+                                    mincmRatioDiff = thiscmRatioDiff;
+                                    purchasedBestHostIndex = j;
+                                }
+                            }else{
+                                if(thiscmRatioDiff < mincmRatioDiff&&hosts[j].cpu>=vms[requestInfos[i].vmType].cpu&&hosts[j].mm>=vms[requestInfos[i].vmType].mm)
+                                {
+                                    mincmRatioDiff = thiscmRatioDiff;
+                                    purchasedBestHostIndex = j;
+                                }
                             }
                         }
-                        bestHost = new PurchasedHost(hosts[purchasedBestHostIndex].cpu, hosts[purchasedBestHostIndex].mm);
+                        bestHost = new PurchasedHost(purchasedBestHostIndex, hosts[purchasedBestHostIndex].cpu, hosts[purchasedBestHostIndex].mm);
                         purchasedHosts->push_back(*bestHost);
                         // cout<<"vector size: "<<purchasedHosts->size()<<endl;
                         // cout<<purchasedHosts->back().listDVMA->size();
@@ -184,7 +194,7 @@ int main(){
                         // cout<<purchasedHosts->back().listDVMB->size();
                         // cout<<purchasedHosts->back().listDVMBoth->size();
                         bestHostIndex = purchasedHosts->size() - 1;
-                        buyMsg.push_back("("+hosts[purchasedBestHostIndex].hostType+",1)\n");
+                        //buyMsg.push_back("("+hosts[purchasedBestHostIndex].hostType+",1)\n");
     
                         if(isDuetOfVm)
                         {
@@ -219,10 +229,26 @@ int main(){
                     purchasedHosts->at(vmIdToDeployedVM[requestInfos[i].vmId]->host).delvm(*vmIdToDeployedVM[requestInfos[i].vmId]);
                 }
             }
-            printf("(purchase,%lu)\n",buyMsg.size());
-            for (auto it = buyMsg.begin(); it != buyMsg.end(); it++)
+
+            sort(purchasedHosts->begin() + lastDayPurchasedHostCount, purchasedHosts->end(), purchasedHostCmp);
+
+            todayPurchasePlan.clear();
+            for(int i = lastDayPurchasedHostCount; i < purchasedHosts->size(); ++i)
             {
-                printf("%s",(*it).c_str());
+                purchasedHosts->at(i).updateListsHostIndex(i);
+                if(todayPurchasePlan.find(purchasedHosts->at(i).hostId) != todayPurchasePlan.end())
+                    ++todayPurchasePlan[purchasedHosts->at(i).hostId];
+                else
+                    todayPurchasePlan[purchasedHosts->at(i).hostId] = 1;
+            }
+
+            lastDayPurchasedHostCount = purchasedHosts->size();
+
+            printf("(purchase,%lu)\n", todayPurchasePlan.size());
+
+            for (auto it = todayPurchasePlan.begin(); it != todayPurchasePlan.end(); it++)
+            {
+                printf("(%s, %d)\n", hosts[(*it).first].hostType.c_str(), (*it).second);
             }
             
             // cout<<day<<"day"<<endl;

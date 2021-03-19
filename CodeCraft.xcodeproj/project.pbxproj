@@ -8,11 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		883DC32B25FAFDB90095A8D4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883DC32A25FAFDB90095A8D4 /* main.cpp */; };
+		88A150EE26042F4900E235DD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88A150ED26042F4900E235DD /* main.cpp */; };
 		88C1DA4E260379C4005AF32D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88C1DA4D260379C4005AF32D /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		883DC32525FAFDB80095A8D4 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		88A150E926042F4900E235DD /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -33,12 +43,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		882C4F3026042FBC00274CCB /* stdc++.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "stdc++.h"; sourceTree = "<group>"; };
 		883C383D25FF60E600F1C07C /* Output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Output.h; sourceTree = "<group>"; };
 		883DC32725FAFDB90095A8D4 /* CodeCraft */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeCraft; sourceTree = BUILT_PRODUCTS_DIR; };
 		883DC32A25FAFDB90095A8D4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		88BDEFE825FF524700D0C898 /* HostPlanning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HostPlanning.h; sourceTree = "<group>"; };
-		88BDEFE925FF534900D0C898 /* VMDeployment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMDeployment.h; sourceTree = "<group>"; };
-		88BDEFEA25FF53E000D0C898 /* VMMigration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VMMigration.h; sourceTree = "<group>"; };
+		88A150EB26042F4900E235DD /* JudgeSystem */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = JudgeSystem; sourceTree = BUILT_PRODUCTS_DIR; };
+		88A150ED26042F4900E235DD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88BDEFED25FF5E3600D0C898 /* DataStructure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataStructure.h; sourceTree = "<group>"; };
 		88C1DA4D260379C4005AF32D /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88C3BD4525FDB9E5005AACEC /* TestTarget */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestTarget; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,6 +57,13 @@
 
 /* Begin PBXFrameworksBuildPhase section */
 		883DC32425FAFDB80095A8D4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88A150E826042F4900E235DD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -68,6 +85,7 @@
 			children = (
 				883DC32925FAFDB90095A8D4 /* CodeCraft */,
 				88C3BD4625FDB9E5005AACEC /* TestTarget */,
+				88A150EC26042F4900E235DD /* JudgeSystem */,
 				883DC32825FAFDB90095A8D4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +95,7 @@
 			children = (
 				883DC32725FAFDB90095A8D4 /* CodeCraft */,
 				88C3BD4525FDB9E5005AACEC /* TestTarget */,
+				88A150EB26042F4900E235DD /* JudgeSystem */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -88,11 +107,17 @@
 				88F999EA25FF31290015E386 /* Input.h */,
 				883C383D25FF60E600F1C07C /* Output.h */,
 				88BDEFED25FF5E3600D0C898 /* DataStructure.h */,
-				88BDEFE825FF524700D0C898 /* HostPlanning.h */,
-				88BDEFEA25FF53E000D0C898 /* VMMigration.h */,
-				88BDEFE925FF534900D0C898 /* VMDeployment.h */,
 			);
 			path = CodeCraft;
+			sourceTree = "<group>";
+		};
+		88A150EC26042F4900E235DD /* JudgeSystem */ = {
+			isa = PBXGroup;
+			children = (
+				882C4F3026042FBC00274CCB /* stdc++.h */,
+				88A150ED26042F4900E235DD /* main.cpp */,
+			);
+			path = JudgeSystem;
 			sourceTree = "<group>";
 		};
 		88C3BD4625FDB9E5005AACEC /* TestTarget */ = {
@@ -123,6 +148,23 @@
 			productReference = 883DC32725FAFDB90095A8D4 /* CodeCraft */;
 			productType = "com.apple.product-type.tool";
 		};
+		88A150EA26042F4900E235DD /* JudgeSystem */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88A150F126042F4900E235DD /* Build configuration list for PBXNativeTarget "JudgeSystem" */;
+			buildPhases = (
+				88A150E726042F4900E235DD /* Sources */,
+				88A150E826042F4900E235DD /* Frameworks */,
+				88A150E926042F4900E235DD /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JudgeSystem;
+			productName = JudgeSystem;
+			productReference = 88A150EB26042F4900E235DD /* JudgeSystem */;
+			productType = "com.apple.product-type.tool";
+		};
 		88C3BD4425FDB9E5005AACEC /* TestTarget */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 88C3BD4B25FDB9E5005AACEC /* Build configuration list for PBXNativeTarget "TestTarget" */;
@@ -151,6 +193,9 @@
 					883DC32625FAFDB80095A8D4 = {
 						CreatedOnToolsVersion = 12.4;
 					};
+					88A150EA26042F4900E235DD = {
+						CreatedOnToolsVersion = 12.4;
+					};
 					88C3BD4425FDB9E5005AACEC = {
 						CreatedOnToolsVersion = 12.4;
 					};
@@ -171,6 +216,7 @@
 			targets = (
 				883DC32625FAFDB80095A8D4 /* CodeCraft */,
 				88C3BD4425FDB9E5005AACEC /* TestTarget */,
+				88A150EA26042F4900E235DD /* JudgeSystem */,
 			);
 		};
 /* End PBXProject section */
@@ -181,6 +227,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				883DC32B25FAFDB90095A8D4 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88A150E726042F4900E235DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88A150EE26042F4900E235DD /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,6 +380,26 @@
 			};
 			name = Release;
 		};
+		88A150EF26042F4900E235DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MQTPDSF9R;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		88A150F026042F4900E235DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MQTPDSF9R;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		88C3BD4925FDB9E5005AACEC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -363,6 +437,15 @@
 			buildConfigurations = (
 				883DC32F25FAFDB90095A8D4 /* Debug */,
 				883DC33025FAFDB90095A8D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		88A150F126042F4900E235DD /* Build configuration list for PBXNativeTarget "JudgeSystem" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88A150EF26042F4900E235DD /* Debug */,
+				88A150F026042F4900E235DD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

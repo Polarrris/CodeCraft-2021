@@ -9,10 +9,43 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>JudgeSystem.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
 		<key>TestTarget.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>1</integer>
+		</dict>
+		<key>judgeSystem.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>883DC32625FAFDB80095A8D4</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>88C3BD4425FDB9E5005AACEC</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>88CC4EF9260427FB00FA550E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>88CC4F0A2604286800FA550E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

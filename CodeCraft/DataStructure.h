@@ -95,6 +95,7 @@ unordered_map <int, DeployedVM*> vmIdToDeployedVM;
 #pragma mark PurchasedHost
 class PurchasedHost {
 public:
+    int hostId;     // 在所给小于等于100台可选物理机中的下标
     int cpu;
     int mm;
     int remainCpuA;
@@ -112,6 +113,7 @@ public:
     list<DeployedVM>* listDVMBoth;
 
     PurchasedHost(const PurchasedHost& purchasedHost){
+        this->hostId = purchasedHost.hostId;
         this->remainCpuA = purchasedHost.remainCpuA;
         this->remainCpuB = purchasedHost.remainCpuB;
         this->remainMmA = purchasedHost.remainMmA;
@@ -122,18 +124,21 @@ public:
         this->remainCMRatioB = purchasedHost.remainCMRatioB;
         this->remainCMRatioBoth = purchasedHost.remainCMRatioBoth;
         this->isDuet = purchasedHost.isDuet;
-        this->listDVMA = new list<DeployedVM>();
-        for(auto It = purchasedHost.listDVMA->begin(); It!= purchasedHost.listDVMA->end();It++){
-            this->listDVMA->push_back(*It);
-        }
-        this->listDVMB = new list<DeployedVM>();
-        for(auto It = purchasedHost.listDVMB->begin(); It!= purchasedHost.listDVMB->end();It++){
-            this->listDVMB->push_back(*It);
-        }
-         this->listDVMBoth = new list<DeployedVM>();
-        for(auto It = purchasedHost.listDVMBoth->begin(); It!= purchasedHost.listDVMBoth->end();It++){
-            this->listDVMBoth->push_back(*It);
-        }
+        
+        this->listDVMA = purchasedHost.listDVMA;
+        this->listDVMB = purchasedHost.listDVMB;
+        this->listDVMBoth = purchasedHost.listDVMBoth;
+//        for(auto It = purchasedHost.listDVMA->begin(); It!= purchasedHost.listDVMA->end();It++){
+//            this->listDVMA->push_back(*It);
+//        }
+//        this->listDVMB = new list<DeployedVM>();
+//        for(auto It = purchasedHost.listDVMB->begin(); It!= purchasedHost.listDVMB->end();It++){
+//            this->listDVMB->push_back(*It);
+//        }
+//         this->listDVMBoth = new list<DeployedVM>();
+//        for(auto It = purchasedHost.listDVMBoth->begin(); It!= purchasedHost.listDVMBoth->end();It++){
+//            this->listDVMBoth->push_back(*It);
+//        }
     }
 
     PurchasedHost()
@@ -145,7 +150,8 @@ public:
         listDVMBoth = new list<DeployedVM>;
     }
     
-    PurchasedHost(int cpu, int mm){
+    PurchasedHost(int _hostId, int cpu, int mm){
+        hostId = _hostId;
         remainCpuA = cpu/2;
         remainCpuB = cpu/2;
         remainMmA = mm/2;
@@ -156,7 +162,7 @@ public:
         listDVMBoth = new list<DeployedVM>();
     }
     
-    DeployedVM* addSingleA(string type, int index, int date, int vmId){
+    void addSingleA(string type, int index, int date, int vmId){
         remainCpuA = remainCpuA - vms[type].cpu;
         remainMmA = remainMmA - vms[type].mm;
         DeployedVM tmpVM(type, date, index, A, vmId);
@@ -168,10 +174,10 @@ public:
         //         cout<<It->first<<"  hostId:"<<It->second->host<<"  node:"<<It->second->deployedNode<<endl;
         //     }
         remainCMRatioA = (float)remainCpuA / remainMmA;
-        return &listDVMA->front();
+//        return &listDVMA->front();
     }
     
-    DeployedVM* addSingleB(string type, int index, int date, int vmId){
+    void addSingleB(string type, int index, int date, int vmId){
         remainCpuB = remainCpuB - vms[type].cpu;
         remainMmB = remainMmB - vms[type].mm;
         DeployedVM tmpVM(type, date, index, B, vmId);
@@ -183,10 +189,10 @@ public:
         //         cout<<It->first<<"  hostId:"<<It->second->host<<"  node:"<<It->second->deployedNode<<endl;
         //     }
         remainCMRatioB = (float)remainCpuB / remainMmB;
-        return &listDVMB->front();
+//        return &listDVMB->front();
     }
     
-    DeployedVM* addBoth(string type, int index, int date, int vmId){
+    void addBoth(string type, int index, int date, int vmId){
         remainCpuA = remainCpuA - vms[type].cpu/2;
         remainMmA = remainMmA - vms[type].mm/2;
         remainCpuB = remainCpuB - vms[type].cpu/2;
@@ -200,10 +206,10 @@ public:
         //         cout<<It->first<<"  hostId:"<<It->second->host<<"  node:"<<It->second->deployedNode<<endl;
         //     }
         remainCMRatioBoth = (float)(remainCpuA+remainCpuB) / (remainMmA+remainMmB);
-        return &listDVMBoth->front();
+//        return &listDVMBoth->front();
     }
     
-    void updateRemainResAfterDelete(DeployedVM& vm){
+    void updateRemainResBeforeDelete(DeployedVM& vm){
             string type = vm.type;
             Node _node = vm.deployedNode;
             int cpuNum = vms[type].cpu;
@@ -228,12 +234,34 @@ public:
 
         void delvm(DeployedVM& deletedVM)
         {
-            // cout<<"delete "<<deletedVM.host<<endl;
-            // e.g.
-            updateRemainResAfterDelete(deletedVM);
-            listDVMA->remove(deletedVM);     //！！！ pay attention！！！
-            //TODO
-            // update remain resource
+        //  for(auto It = listDVMA->begin(); It!= listDVMA->end();It++){
+        //     cout<<It->vmId<<" ";
+        // }
+        // cout<<endl;
+        // for(auto It = listDVMB->begin(); It!= listDVMB->end();It++){
+        //     cout<<It->vmId<<" ";
+
+        // }
+        // cout<<endl;
+        // for(auto It = listDVMBoth->begin(); It!= listDVMBoth->end();It++){
+        //     cout<<It->vmId<<" ";
+
+        // }
+        // cout<<endl;
+        // cout<<"delete "<<deletedVM.host<<endl;
+        // e.g.
+        updateRemainResBeforeDelete(deletedVM);
+        // cout<<"before remove"<<endl<<this->listDVMA->size()<<endl<<this->listDVMB->size()<<endl<<this->listDVMBoth->size()<<endl;;
+        if(deletedVM.deployedNode == A)
+        listDVMA->remove(deletedVM);//！！！ pay attention！！！
+        else if(deletedVM.deployedNode == B)
+        listDVMB->remove(deletedVM);
+        else
+        listDVMBoth->remove(deletedVM);
+        // cout<<"After remove"<<endl<<this->listDVMA->size()<<endl<<this->listDVMB->size()<<endl<<this->listDVMBoth->size()<<endl;
+
+        //TODO
+        // update remain resource
         }
 
         bool isRemainResourceAvailForA(int _cpu, int _mm)
@@ -259,50 +287,20 @@ public:
             else
                 return false;
         }
-    
-    //    int updateRemainResource(node wantedNode){
-    //        int tmp1=0,tmp2=0;
-    //        if (wantedNode == A) {
-    //            list <DeployedVM>::iterator p_listDVMA;
-    //            for (p_listDVMA=listDVMA.begin(); p_listDVMA!=listDVMA.end(); ++p_listDVMA) {
-    //                tmp1 += vms[p_listDVMA->type].cpu;
-    //                tmp2 += vms[p_listDVMA->type].mm;
-    //            }
-    //
-    //            if (!listDVMBoth.empty()) {
-    //                list <DeployedVM>::iterator p_listDVMBoth;
-    //                for (p_listDVMBoth=listDVMBoth.begin(); p_listDVMBoth!=listDVMBoth.end(); ++p_listDVMBoth) {
-    //                    tmp1 += vms[p_listDVMBoth->type].cpu;
-    //                    tmp2 += vms[p_listDVMBoth->type].mm;
-    //                }
-    //            }
-    //
-    //            remainCpuA = (cpu/2)-tmp1;
-    //            remainMmA = (mm/2)-tmp2;
-    //        }
-    //        if (wantedNode == B) {
-    //            list <DeployedVM>::iterator p_listDVMB;
-    //            for (p_listDVMB=listDVMA.begin(); p_listDVMB!=listDVMA.end(); ++p_listDVMB) {
-    //                tmp1 += vms[p_listDVMB->type].cpu;
-    //                tmp2 += vms[p_listDVMB->type].mm;
-    //            }
-    //
-    //            if (!listDVMBoth.empty()) {
-    //                list <DeployedVM>::iterator p_listDVMBoth;
-    //                for (p_listDVMBoth=listDVMBoth.begin(); p_listDVMBoth!=listDVMBoth.end(); ++p_listDVMBoth) {
-    //                    tmp1 += vms[p_listDVMBoth->type].cpu;
-    //                    tmp2 += vms[p_listDVMBoth->type].mm;
-    //                }
-    //            }
-    //
-    //            remainCpuA = (cpu/2)-tmp1;
-    //            remainMmA = (mm/2)-tmp2;
-    //        }
-    //
-    //
-    //
-    //        return 0;
-    //    }
+
+        void updateListsHostIndex(int afterHostId)
+        {
+            for(auto It = listDVMA->begin(); It!= listDVMA->end();It++){
+                It->host = afterHostId;
+            }
+            for(auto It = listDVMB->begin(); It!= listDVMB->end();It++){
+                It->host = afterHostId;
+            }
+            for(auto It = listDVMBoth->begin(); It!= listDVMBoth->end();It++){
+                It->host = afterHostId;
+            }
+        }
+
     
     ~PurchasedHost(){
         // cout<<"~~function"<<endl;
@@ -323,5 +321,10 @@ public:
 //已购买的主机
 vector<PurchasedHost> *purchasedHosts = new vector<PurchasedHost>;
 
+//purchasedHost比较函数
+bool static purchasedHostCmp(const PurchasedHost& first, const PurchasedHost& second)
+{
+    return first.hostId < second.hostId;
+}
 
 #endif /* DataStructure_h */
