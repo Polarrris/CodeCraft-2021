@@ -7,12 +7,32 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		883DC32B25FAFDB90095A8D4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883DC32A25FAFDB90095A8D4 /* main.cpp */; };
-		88A150EE26042F4900E235DD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88A150ED26042F4900E235DD /* main.cpp */; };
-		88C1DA4E260379C4005AF32D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88C1DA4D260379C4005AF32D /* main.cpp */; };
+		8826ED062605C6CB00269365 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8826ED042605C6CB00269365 /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
+		8826ED212605C8F300269365 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88A150ED26042F4900E235DD /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
+		883DC32B25FAFDB90095A8D4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883DC32A25FAFDB90095A8D4 /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
+		88B3917026159E7100398F66 /* CodeCraft-2021.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */; };
+		88C1DA4E260379C4005AF32D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88C1DA4D260379C4005AF32D /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		8826EC7C2604D87000269365 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		8826ECA526059A0F00269365 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		883DC32525FAFDB80095A8D4 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -43,12 +63,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8826EC7E2604D87000269365 /* CodeCraftV1.X */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeCraftV1.X; sourceTree = BUILT_PRODUCTS_DIR; };
+		8826ECA726059A0F00269365 /* CodeCraftV2.X */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeCraftV2.X; sourceTree = BUILT_PRODUCTS_DIR; };
+		8826ED042605C6CB00269365 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		8826ED052605C6CB00269365 /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
+		8826ED7E2608CC1300269365 /* PurchasePlanToday.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PurchasePlanToday.h; sourceTree = "<group>"; };
+		8826ED842608E47000269365 /* PiecesPlanTommorrow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PiecesPlanTommorrow.h; sourceTree = "<group>"; };
+		8826ED852608F04400269365 /* Deployment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Deployment.h; sourceTree = "<group>"; };
 		882C4F3026042FBC00274CCB /* stdc++.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "stdc++.h"; sourceTree = "<group>"; };
 		883C383D25FF60E600F1C07C /* Output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Output.h; sourceTree = "<group>"; };
 		883DC32725FAFDB90095A8D4 /* CodeCraft */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeCraft; sourceTree = BUILT_PRODUCTS_DIR; };
 		883DC32A25FAFDB90095A8D4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88A150EB26042F4900E235DD /* JudgeSystem */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = JudgeSystem; sourceTree = BUILT_PRODUCTS_DIR; };
 		88A150ED26042F4900E235DD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		88B3916C26159E7100398F66 /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
+		88B3916D26159E7100398F66 /* DataStructure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStructure.h; sourceTree = "<group>"; };
+		88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CodeCraft-2021.cpp"; sourceTree = "<group>"; };
+		88B3916F26159E7100398F66 /* Output.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Output.h; sourceTree = "<group>"; };
 		88BDEFED25FF5E3600D0C898 /* DataStructure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataStructure.h; sourceTree = "<group>"; };
 		88C1DA4D260379C4005AF32D /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88C3BD4525FDB9E5005AACEC /* TestTarget */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestTarget; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,6 +87,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		8826EC7B2604D87000269365 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8826ECA426059A0F00269365 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		883DC32425FAFDB80095A8D4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -80,12 +125,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8826EC7F2604D87000269365 /* CodeCraftV1.X */ = {
+			isa = PBXGroup;
+			children = (
+				88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */,
+				88B3916D26159E7100398F66 /* DataStructure.h */,
+				88B3916C26159E7100398F66 /* Input.h */,
+				88B3916F26159E7100398F66 /* Output.h */,
+			);
+			path = CodeCraftV1.X;
+			sourceTree = "<group>";
+		};
+		8826ECA826059A0F00269365 /* CodeCraftV2.X */ = {
+			isa = PBXGroup;
+			children = (
+				8826ED852608F04400269365 /* Deployment.h */,
+				8826ED842608E47000269365 /* PiecesPlanTommorrow.h */,
+				8826ED052605C6CB00269365 /* Input.h */,
+				8826ED042605C6CB00269365 /* main.cpp */,
+				8826ED7E2608CC1300269365 /* PurchasePlanToday.h */,
+			);
+			path = CodeCraftV2.X;
+			sourceTree = "<group>";
+		};
 		883DC31E25FAFDB80095A8D4 = {
 			isa = PBXGroup;
 			children = (
 				883DC32925FAFDB90095A8D4 /* CodeCraft */,
 				88C3BD4625FDB9E5005AACEC /* TestTarget */,
 				88A150EC26042F4900E235DD /* JudgeSystem */,
+				8826EC7F2604D87000269365 /* CodeCraftV1.X */,
+				8826ECA826059A0F00269365 /* CodeCraftV2.X */,
 				883DC32825FAFDB90095A8D4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -96,6 +166,8 @@
 				883DC32725FAFDB90095A8D4 /* CodeCraft */,
 				88C3BD4525FDB9E5005AACEC /* TestTarget */,
 				88A150EB26042F4900E235DD /* JudgeSystem */,
+				8826EC7E2604D87000269365 /* CodeCraftV1.X */,
+				8826ECA726059A0F00269365 /* CodeCraftV2.X */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -131,6 +203,40 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		8826EC7D2604D87000269365 /* CodeCraftV1.X */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8826EC842604D87100269365 /* Build configuration list for PBXNativeTarget "CodeCraftV1.X" */;
+			buildPhases = (
+				8826EC7A2604D87000269365 /* Sources */,
+				8826EC7B2604D87000269365 /* Frameworks */,
+				8826EC7C2604D87000269365 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CodeCraftV1.X;
+			productName = CodeCraftV1.X;
+			productReference = 8826EC7E2604D87000269365 /* CodeCraftV1.X */;
+			productType = "com.apple.product-type.tool";
+		};
+		8826ECA626059A0F00269365 /* CodeCraftV2.X */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8826ECAB26059A0F00269365 /* Build configuration list for PBXNativeTarget "CodeCraftV2.X" */;
+			buildPhases = (
+				8826ECA326059A0F00269365 /* Sources */,
+				8826ECA426059A0F00269365 /* Frameworks */,
+				8826ECA526059A0F00269365 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CodeCraftV2.X;
+			productName = CodeCraftV2.X;
+			productReference = 8826ECA726059A0F00269365 /* CodeCraftV2.X */;
+			productType = "com.apple.product-type.tool";
+		};
 		883DC32625FAFDB80095A8D4 /* CodeCraft */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 883DC32E25FAFDB90095A8D4 /* Build configuration list for PBXNativeTarget "CodeCraft" */;
@@ -190,6 +296,12 @@
 			attributes = {
 				LastUpgradeCheck = 1240;
 				TargetAttributes = {
+					8826EC7D2604D87000269365 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					8826ECA626059A0F00269365 = {
+						CreatedOnToolsVersion = 12.4;
+					};
 					883DC32625FAFDB80095A8D4 = {
 						CreatedOnToolsVersion = 12.4;
 					};
@@ -217,11 +329,29 @@
 				883DC32625FAFDB80095A8D4 /* CodeCraft */,
 				88C3BD4425FDB9E5005AACEC /* TestTarget */,
 				88A150EA26042F4900E235DD /* JudgeSystem */,
+				8826EC7D2604D87000269365 /* CodeCraftV1.X */,
+				8826ECA626059A0F00269365 /* CodeCraftV2.X */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		8826EC7A2604D87000269365 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88B3917026159E7100398F66 /* CodeCraft-2021.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8826ECA326059A0F00269365 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8826ED062605C6CB00269365 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		883DC32325FAFDB80095A8D4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -234,7 +364,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88A150EE26042F4900E235DD /* main.cpp in Sources */,
+				8826ED212605C8F300269365 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,6 +379,46 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		8826EC822604D87100269365 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MQTPDSF9R;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8826EC832604D87100269365 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MQTPDSF9R;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		8826ECAC26059A0F00269365 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MQTPDSF9R;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8826ECAD26059A0F00269365 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 4MQTPDSF9R;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		883DC32C25FAFDB90095A8D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -423,6 +593,24 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		8826EC842604D87100269365 /* Build configuration list for PBXNativeTarget "CodeCraftV1.X" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8826EC822604D87100269365 /* Debug */,
+				8826EC832604D87100269365 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8826ECAB26059A0F00269365 /* Build configuration list for PBXNativeTarget "CodeCraftV2.X" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8826ECAC26059A0F00269365 /* Debug */,
+				8826ECAD26059A0F00269365 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		883DC32225FAFDB80095A8D4 /* Build configuration list for PBXProject "CodeCraft" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

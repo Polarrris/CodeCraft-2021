@@ -327,4 +327,9 @@ bool static purchasedHostCmp(const PurchasedHost& first, const PurchasedHost& se
     return first.hostId < second.hostId;
 }
 
+bool static vmResCmp(const RequestInfo& first, const RequestInfo& second)
+{
+    return vms[first.vmType].cpu + vms[first.vmType].mm > vms[second.vmType].cpu + vms[second.vmType].mm;
+}
+
 #endif /* DataStructure_h */
