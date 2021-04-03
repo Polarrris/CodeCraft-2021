@@ -7,8 +7,47 @@
 
 #ifndef Input_h
 #define Input_h
-#include "DataStructure.h"
 using namespace std;
+
+//结点枚举类型
+typedef enum : short {
+    A,
+    B,
+    Both
+} Node;
+
+//请求信息枚举类型
+typedef enum : short {
+    add,
+    del
+} InfoType;
+
+//主机信息
+struct Host {
+    string hostType;
+    int cpu;
+    int mm;
+    float cmRatio;
+    int hostCost;
+    int dailyCost;
+};
+
+//虚拟机信息
+struct VmProperties {
+    int cpu;
+    int mm;
+    bool isDuet;  // true为双节点部署
+};
+
+//请求信息
+struct RequestInfo {
+    InfoType infoType;
+    string vmType;
+    int vmId;
+};
+
+//??????
+unordered_map <string, VmProperties> vms_backup;
 
 int string2Int(string s){
     int _tmp = 0;
@@ -19,7 +58,7 @@ int string2Int(string s){
 }
 
 //解析主机信息
-void generateHost(string &hostType,string &cpu,string &mm,string &hostCost,string &dailyCost){
+void generateHost(vector<Host>& hosts, string &hostType,string &cpu,string &mm,string &hostCost,string &dailyCost){
     string _hostType="";
     for(int i = 1; i < hostType.size() - 1; i++){
         _hostType += hostType[i];
@@ -32,11 +71,10 @@ void generateHost(string &hostType,string &cpu,string &mm,string &hostCost,strin
     _host.hostCost = string2Int(hostCost);
     _host.dailyCost = string2Int(dailyCost);
     hosts.push_back(_host);
-    
 }
 
 //解析虚拟机信息
-void generateVm(string &vmType,string &cpu,string &mm,string &isDuet){
+void generateVm(unordered_map<string, VmProperties>& vms, string &vmType,string &cpu,string &mm,string &isDuet){
     string _vmType;
     VmProperties _vmProperties;
     
@@ -51,34 +89,37 @@ void generateVm(string &vmType,string &cpu,string &mm,string &isDuet){
         _vmProperties.isDuet = false;
     
     vms.insert(pair<string,VmProperties>(_vmType, _vmProperties));
+    vms_backup.insert(pair<string,VmProperties>(_vmType, _vmProperties));
 }
 
 //解析用户添加请求
-void generateRequest(string &vmType,string &vmId){
+void generateRequest(vector<RequestInfo>& requestInfos, vector<RequestInfo>& requestInfos_backup, string &vmType,string &vmId){
     RequestInfo _requestInfo;
     vmType.substr(0,vmType.size() - 1);
     _requestInfo.infoType = add;
     _requestInfo.vmType = vmType.substr(0,vmType.size() - 1);
     _requestInfo.vmId = string2Int(vmId);
     requestInfos.push_back(_requestInfo);
+    requestInfos_backup.push_back(_requestInfo);
 }
 
 //解析用户删除请求
-void generateRequest(string &vmId){
+void generateRequest(vector<RequestInfo>& requestInfos, vector<RequestInfo>& requestInfos_backup, string &vmId){
     RequestInfo _requestInfo;
     _requestInfo.infoType = del;
     _requestInfo.vmId = string2Int(vmId);
     requestInfos.push_back(_requestInfo);
+    requestInfos_backup.push_back(_requestInfo);
 }
 
-void getHostsAndVms(){
+void getHostsAndVms(vector<Host>& hosts, unordered_map<string, VmProperties>& vms){
     //解析hosts信息
     int hostCount = 0;
     scanf("%d",&hostCount);
     string hostType,cpu,mm,hostCost,dailyCost;
     for(int i =0;i<hostCount;i++){
         cin>>hostType>>cpu>>mm>>hostCost>>dailyCost;
-        generateHost(hostType,cpu,mm,hostCost,dailyCost);
+        generateHost(hosts, hostType, cpu, mm, hostCost,dailyCost);
     }
     
     //解析vmProperties信息
@@ -87,7 +128,7 @@ void getHostsAndVms(){
     string vmType,isDuet;
     for(int i = 0; i < vmCount; i++){
         cin>>vmType>>cpu>>mm>>isDuet;
-        generateVm(vmType,cpu,mm,isDuet);
+        generateVm(vms, vmType, cpu, mm, isDuet);
     }
 }
 

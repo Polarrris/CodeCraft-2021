@@ -7,51 +7,8 @@
 
 #ifndef DataStructure_h
 #define DataStructure_h
-
 using namespace std;
-
-//结点枚举类型
-typedef enum : short {
-    A,
-    B,
-    Both
-} Node;
-
-//请求信息枚举类型
-typedef enum : short {
-    add,
-    del
-} InfoType;
-
-//主机信息
-struct Host {
-    string hostType;
-    int cpu;
-    int mm;
-    float cmRatio;
-    int hostCost;
-    int dailyCost;
-};
-
-vector<Host> hosts;
-
-//虚拟机信息
-struct VmProperties {
-    int cpu;
-    int mm;
-    bool isDuet;  // true为双节点部署
-};
-
-//虚拟机类型到信息的映射
-unordered_map <string, VmProperties> vms;
-
-//请求信息
-struct RequestInfo {
-    InfoType infoType;
-    string vmType;
-    int vmId;
-};
-vector<RequestInfo> requestInfos;
+#include "Input.h"
 
 #pragma mark DeployedVM
 
@@ -84,9 +41,6 @@ public:
             return first.vmId == second.vmId;
         }
 };
-
-//虚拟机id到其节点的映射
-unordered_map <int, DeployedVM*> vmIdToDeployedVM;
 
 
 #pragma mark PurchasedHost
@@ -142,7 +96,7 @@ public:
         listDVMBoth = new list<DeployedVM>();
     }
     
-    void addSingleA(string type, int index, int vmId,int day){
+    void addSingleA(string type, int index, int vmId, int day, unordered_map <int, DeployedVM*>& vmIdToDeployedVM, unordered_map<string, VmProperties>& vms){
         remainCpuA = remainCpuA - vms[type].cpu;
         remainMmA = remainMmA - vms[type].mm;
         // if(remainCpuA < 0 || remainMmA < 0)
@@ -154,7 +108,7 @@ public:
         remainCMRatioBoth = ((float)(remainCpuA+remainCpuB) / (remainMmA+remainMmB));
     }
     
-    void addSingleB(string type, int index, int vmId,int day){
+    void addSingleB(string type, int index, int vmId, int day, unordered_map <int, DeployedVM*>& vmIdToDeployedVM, unordered_map<string, VmProperties>& vms){
         remainCpuB = remainCpuB - vms[type].cpu;
         remainMmB = remainMmB - vms[type].mm;
         // if(remainCpuA < 0 || remainMmA < 0)
@@ -166,7 +120,7 @@ public:
         remainCMRatioBoth = ((float)(remainCpuA+remainCpuB) / (remainMmA+remainMmB));
     }
     
-    void addBoth(string type, int index, int vmId,int day){
+    void addBoth(string type, int index, int vmId,int day, unordered_map <int, DeployedVM*>& vmIdToDeployedVM, unordered_map<string, VmProperties>& vms){
         remainCpuA = remainCpuA - vms[type].cpu/2;
         remainMmA = remainMmA - vms[type].mm/2;
         remainCpuB = remainCpuB - vms[type].cpu/2;
@@ -181,7 +135,7 @@ public:
         remainCMRatioBoth = ((float)(remainCpuA+remainCpuB) / (remainMmA+remainMmB));
     }
     
-    void updateRemainResBeforeDelete(DeployedVM& vm){
+    void updateRemainResBeforeDelete(DeployedVM& vm, unordered_map<string, VmProperties>& vms){
             string type = vm.type;
             Node _node = vm.deployedNode;
             int cpuNum = vms[type].cpu;
@@ -208,9 +162,9 @@ public:
             }
         }
 
-        void delvm(DeployedVM& deletedVM)
+        void delvm(DeployedVM& deletedVM, unordered_map<string, VmProperties>& vms)
         {
-        updateRemainResBeforeDelete(deletedVM);
+        updateRemainResBeforeDelete(deletedVM, vms);
         if(deletedVM.deployedNode == A)
         listDVMA->remove(deletedVM);//！！！ pay attention！！！
         else if(deletedVM.deployedNode == B)
@@ -268,54 +222,55 @@ bool static purchasedHostCmp(const PurchasedHost& first, const PurchasedHost& se
 
 bool static vmResCmp(const RequestInfo& first, const RequestInfo& second)
 {
-    if(vms[first.vmType].isDuet != vms[second.vmType].isDuet)
-        return vms[first.vmType].isDuet > vms[second.vmType].isDuet;
-    else
-        return vms[first.vmType].cpu + vms[first.vmType].mm > vms[second.vmType].cpu + vms[second.vmType].mm;
+//    if(vms_backup[first.vmType].isDuet != vms_backup[second.vmType].isDuet)
+//        return vms_backup[first.vmType].isDuet > vms_backup[second.vmType].isDuet;
+//    else
+//        return vms_backup[first.vmType].cpu + vms_backup[first.vmType].mm > vms_backup[second.vmType].cpu + vms_backup[second.vmType].mm;
+    return first.vmId > second.vmId;
 }
 
 
 
-void migratePhysicalToA(vector<PurchasedHost>& purchasedHost,int vmId,int toHostIndex){
+void migratePhysicalToA(int vmId, int toHostIndex, vector<PurchasedHost>& purchasedHost, unordered_map<string, VmProperties>& vms,  unordered_map <int, DeployedVM*>& vmIdToDeployedVM){
     int formerHostId = vmIdToDeployedVM[vmId]->host;
     string vmType = vmIdToDeployedVM[vmId]->type;
     int day = vmIdToDeployedVM[vmId]->day;
-    purchasedHost[formerHostId].delvm(*vmIdToDeployedVM[vmId]);
+    purchasedHost[formerHostId].delvm(*vmIdToDeployedVM[vmId], vms);
     // if(!purchasedHost[toHostIndex].isRemainResourceAvailForA(vms[vmType].cpu,vms[vmType].mm))
     // {
-    //     cout << "迁移中A节点资源不够" << endl; 
+    //     cout << "迁移中A节点资源不够" << endl;
     // }
-    purchasedHost[toHostIndex].addSingleA(vmType,toHostIndex,vmId,day);
+    purchasedHost[toHostIndex].addSingleA(vmType, toHostIndex, vmId, day, vmIdToDeployedVM, vms);
 }
 
-void migratePhysicalToB(vector<PurchasedHost>& purchasedHost,int vmId,int toHostIndex){
+void migratePhysicalToB(int vmId,int toHostIndex, vector<PurchasedHost>& purchasedHost, unordered_map<string, VmProperties>& vms,  unordered_map <int, DeployedVM*>& vmIdToDeployedVM){
     int formerHostId = vmIdToDeployedVM[vmId]->host;
     string vmType = vmIdToDeployedVM[vmId]->type;
     int day = vmIdToDeployedVM[vmId]->day;
-    purchasedHost[formerHostId].delvm(*vmIdToDeployedVM[vmId]);
+    purchasedHost[formerHostId].delvm(*vmIdToDeployedVM[vmId], vms);
     // if(!purchasedHost[toHostIndex].isRemainResourceAvailForB(vms[vmType].cpu,vms[vmType].mm))
     // {
-    //     cout << "迁移中B节点资源不够" << endl; 
+    //     cout << "迁移中B节点资源不够" << endl;
     // }
-    purchasedHost[toHostIndex].addSingleB(vmType,toHostIndex,vmId,day);
+    purchasedHost[toHostIndex].addSingleB(vmType, toHostIndex, vmId, day, vmIdToDeployedVM, vms);
 
 }
 
-void migratePhysicalToBoth(vector<PurchasedHost>& purchasedHost,int vmId,int toHostIndex){
+void migratePhysicalToBoth(int vmId,int toHostIndex, vector<PurchasedHost>& purchasedHost, unordered_map<string, VmProperties>& vms,  unordered_map <int, DeployedVM*>& vmIdToDeployedVM){
     int formerHostId = vmIdToDeployedVM[vmId]->host;
     string vmType = vmIdToDeployedVM[vmId]->type;
     int day = vmIdToDeployedVM[vmId]->day;
-    purchasedHost[formerHostId].delvm(*vmIdToDeployedVM[vmId]);
+    purchasedHost[formerHostId].delvm(*vmIdToDeployedVM[vmId], vms);
     // if(!purchasedHost[toHostIndex].isRemainResourceAvailForBoth(vms[vmType].cpu,vms[vmType].mm))
     // {
-    //     cout << "迁移中双节点资源不够" << endl; 
+    //     cout << "迁移中双节点资源不够" << endl;
     // }
-    purchasedHost[toHostIndex].addBoth(vmType,toHostIndex,vmId,day);
+    purchasedHost[toHostIndex].addBoth(vmType, toHostIndex, vmId, day, vmIdToDeployedVM, vms);
 
 }
 
 //找到最小能放下的服务器下标
-int findBestFitHost(DeployedVM* p,vector<PurchasedHost>& purchasedHost,vector<int>& disabledHost,int& upperLimit){
+int findBestFitHost(DeployedVM* p, vector<int>& disabledHost, int& upperLimit, vector<PurchasedHost>& purchasedHost, unordered_map<string, VmProperties>& vms){
     int index = -1;
     //score 评分越高越好，现在的score为剩下的空间的倒数
     // int score = 0;
@@ -389,9 +344,9 @@ int findBestFitHost(DeployedVM* p,vector<PurchasedHost>& purchasedHost,vector<in
 
 }
 
-DeployedVM* findSmallerVmFromHost(const vector<PurchasedHost>& purchasedHost,int index,int& lastSize){
+DeployedVM* findSmallerVmFromHost(int index, int& lastSize, const vector<PurchasedHost>& purchasedHost, unordered_map<string, VmProperties>& vms){
     DeployedVM* p=nullptr;
-    if (purchasedHost[index].listDVMA->size() == 0 && purchasedHost[index].listDVMB->size() == 0 
+    if (purchasedHost[index].listDVMA->size() == 0 && purchasedHost[index].listDVMB->size() == 0
     && purchasedHost[index].listDVMBoth->size() == 0)
     {
         
@@ -429,18 +384,18 @@ DeployedVM* findSmallerVmFromHost(const vector<PurchasedHost>& purchasedHost,int
     return p;
 
 }
-DeployedVM* findSmallestVmFromHost(const vector<PurchasedHost>& purchasedHost,int index){
+DeployedVM* findSmallestVmFromHost(const vector<PurchasedHost>& purchasedHost, int index, unordered_map<string, VmProperties>& vms){
     DeployedVM* p=nullptr;
     
     // 服务器上无虚拟机
-    if (purchasedHost[index].listDVMA->size() == 0 && purchasedHost[index].listDVMB->size() == 0 
+    if (purchasedHost[index].listDVMA->size() == 0 && purchasedHost[index].listDVMB->size() == 0
     && purchasedHost[index].listDVMBoth->size() == 0)
     {
         
         return p;
     }
     int size = 100000;
-    // 
+    //
     for (auto  it = purchasedHost[index].listDVMA->begin(); it !=purchasedHost[index].listDVMA->end(); it++)
     {
         if (vms[it->type].cpu+vms[it->type].mm < size)
@@ -476,7 +431,7 @@ int findBiggestHost(const vector<PurchasedHost>& purchasedHost,vector<int> disab
     int index = -1;
     int totalSize = -1;
     for (auto it = purchasedHost.begin(); it != purchasedHost.end(); it++)
-    {        
+    {
         if(it->remainCpuA+it->remainCpuB+it->remainMmA+it->remainMmB>totalSize&& disabledHost[it-purchasedHost.begin()]==0){
             index = it - purchasedHost.begin();
             totalSize = it->remainCpuA+it->remainCpuB+it->remainMmA+it->remainMmB;
@@ -486,7 +441,7 @@ int findBiggestHost(const vector<PurchasedHost>& purchasedHost,vector<int> disab
 }
 
 
-void migrantBeforeDeployed(vector<PurchasedHost>& purchasedHost,list<pair<int,pair<int,Node>>>& migrateInfos,int allowedCount){
+void migrantBeforeDeployed(int allowedCount, vector<PurchasedHost>& purchasedHost, unordered_map<string, VmProperties>& vms, list<pair<int,pair<int,Node>>>& migrateInfos, unordered_map <int, DeployedVM*>& vmIdToDeployedVM){
  
     if (purchasedHost.size() == 0)
     {
@@ -528,7 +483,7 @@ void migrantBeforeDeployed(vector<PurchasedHost>& purchasedHost,list<pair<int,pa
         //返回-1说明已经找不到Host了
         while (migrateInfos.size()<allowedCount)
         {
-            DeployedVM* p = findSmallerVmFromHost(purchasedHost,index,lastSize);
+            DeployedVM* p = findSmallerVmFromHost(index, lastSize, purchasedHost, vms);
             if (p == nullptr)
             {
                 // cout<<"warning host is empty!"<<endl;
@@ -538,7 +493,7 @@ void migrantBeforeDeployed(vector<PurchasedHost>& purchasedHost,list<pair<int,pa
             // cout<<lastSize;
             int upperLimit = 1000000;
 
-            int targetIndex = findBestFitHost(p,purchasedHost,disabledHost,upperLimit);
+            int targetIndex = findBestFitHost(p, disabledHost, upperLimit, purchasedHost, vms);
             if (lastSize > upperLimit)
             {
                 lastSize = (upperLimit*5)/7;
@@ -577,7 +532,7 @@ void migrantBeforeDeployed(vector<PurchasedHost>& purchasedHost,list<pair<int,pa
                         targetNode = A;
                     }else{
                         targetNode = B;
-                    } 
+                    }
                 }else if (purchasedHost[targetIndex].isRemainResourceAvailForA(vms[p->type].cpu,vms[p->type].mm))
                 {
                     targetNode = A;
@@ -590,12 +545,12 @@ void migrantBeforeDeployed(vector<PurchasedHost>& purchasedHost,list<pair<int,pa
             migrateInfos.push_back(pair<int,pair<int,Node>>(p->vmId,pair<int,Node>(targetIndex,targetNode)));
             if (targetNode == A)
             {
-                migratePhysicalToA(purchasedHost,p->vmId,targetIndex);
+                migratePhysicalToA(p->vmId, targetIndex, purchasedHost, vms, vmIdToDeployedVM);
             }else if (targetNode == B)
             {
-                migratePhysicalToB(purchasedHost,p->vmId,targetIndex);
+                migratePhysicalToB(p->vmId, targetIndex, purchasedHost, vms, vmIdToDeployedVM);
             }else{
-                migratePhysicalToBoth(purchasedHost,p->vmId,targetIndex);
+                migratePhysicalToBoth(p->vmId,targetIndex, purchasedHost, vms, vmIdToDeployedVM);
             }
         }
         ///////////

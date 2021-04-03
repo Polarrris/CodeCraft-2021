@@ -9,7 +9,7 @@
 #define Output_h
 #include "DataStructure.h"
 
-void outputDeploymentResult(){
+void outputDeploymentResult(vector<RequestInfo>& requestInfos, unordered_map <int, DeployedVM*>& vmIdToDeployedVM){
     for(auto it = requestInfos.begin(); it != requestInfos.end(); it++){
         if (it->infoType == add)
         {

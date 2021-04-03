@@ -8,9 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		8826ED062605C6CB00269365 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8826ED042605C6CB00269365 /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
-		8826ED212605C8F300269365 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88A150ED26042F4900E235DD /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		883DC32B25FAFDB90095A8D4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883DC32A25FAFDB90095A8D4 /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
-		88B3917026159E7100398F66 /* CodeCraft-2021.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */; };
+		88B3917026159E7100398F66 /* CodeCraft-2021.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		88C1DA4E260379C4005AF32D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88C1DA4D260379C4005AF32D /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 /* End PBXBuildFile section */
 
@@ -70,12 +69,10 @@
 		8826ED7E2608CC1300269365 /* PurchasePlanToday.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PurchasePlanToday.h; sourceTree = "<group>"; };
 		8826ED842608E47000269365 /* PiecesPlanTommorrow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PiecesPlanTommorrow.h; sourceTree = "<group>"; };
 		8826ED852608F04400269365 /* Deployment.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Deployment.h; sourceTree = "<group>"; };
-		882C4F3026042FBC00274CCB /* stdc++.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "stdc++.h"; sourceTree = "<group>"; };
 		883C383D25FF60E600F1C07C /* Output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Output.h; sourceTree = "<group>"; };
 		883DC32725FAFDB90095A8D4 /* CodeCraft */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeCraft; sourceTree = BUILT_PRODUCTS_DIR; };
 		883DC32A25FAFDB90095A8D4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88A150EB26042F4900E235DD /* JudgeSystem */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = JudgeSystem; sourceTree = BUILT_PRODUCTS_DIR; };
-		88A150ED26042F4900E235DD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88B3916C26159E7100398F66 /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
 		88B3916D26159E7100398F66 /* DataStructure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStructure.h; sourceTree = "<group>"; };
 		88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CodeCraft-2021.cpp"; sourceTree = "<group>"; };
@@ -153,7 +150,6 @@
 			children = (
 				883DC32925FAFDB90095A8D4 /* CodeCraft */,
 				88C3BD4625FDB9E5005AACEC /* TestTarget */,
-				88A150EC26042F4900E235DD /* JudgeSystem */,
 				8826EC7F2604D87000269365 /* CodeCraftV1.X */,
 				8826ECA826059A0F00269365 /* CodeCraftV2.X */,
 				883DC32825FAFDB90095A8D4 /* Products */,
@@ -181,15 +177,6 @@
 				88BDEFED25FF5E3600D0C898 /* DataStructure.h */,
 			);
 			path = CodeCraft;
-			sourceTree = "<group>";
-		};
-		88A150EC26042F4900E235DD /* JudgeSystem */ = {
-			isa = PBXGroup;
-			children = (
-				882C4F3026042FBC00274CCB /* stdc++.h */,
-				88A150ED26042F4900E235DD /* main.cpp */,
-			);
-			path = JudgeSystem;
 			sourceTree = "<group>";
 		};
 		88C3BD4625FDB9E5005AACEC /* TestTarget */ = {
@@ -364,7 +351,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8826ED212605C8F300269365 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

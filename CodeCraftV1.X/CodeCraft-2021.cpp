@@ -19,24 +19,16 @@
 #include <math.h>
 #include <cmath>
 
-#include "Input.h"
 #include "Output.h"
 #include "DataStructure.h"
 using namespace std;
 
-bool isDuetOfVm;
-float cmRatioOfVm, mincmRatioDiff;
-PurchasedHost* bestHost;
-int bestHostIndex;
-Node bestHostNode;
-pair<int, Node> bestHostPair;
-
-float getCostPerFormance(int index, int day, int totalday){
+float getCostPerFormance(vector<Host>& hosts,int index, int day, int totalday){
     return (hosts[index].cpu + hosts[index].mm) / float(hosts[index].hostCost + hosts[index].dailyCost * (totalday-day));
 }
 
 #pragma mark getBestPurchasedHost
-int getBestPurchasedHost(const vector<RequestInfo>& requestInfos, int i, int day, int totalDay){
+int getBestPurchasedHost(vector<Host>& hosts,unordered_map <string, VmProperties>& vms,const vector<RequestInfo>& requestInfos, int i, int day, int totalDay, bool isDuetOfVm, float cmRatioOfVm){
     // cm比差距 index 性价比
     vector<pair<float, pair<int,float>>> hostVec;
     for (int i = 10000; i < 10022; i++) {
@@ -56,13 +48,13 @@ int getBestPurchasedHost(const vector<RequestInfo>& requestInfos, int i, int day
                         if (it->first > thiscmRatioDiff)
                         {
                             flag = true;
-                            hostVec.insert(it,pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(j,day,totalDay))));
+                            hostVec.insert(it,pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(hosts,j,day,totalDay))));
                             break;
                         }
                     }
                     if (flag != true)
                     {
-                        hostVec.push_back(pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(j,day,totalDay))));
+                        hostVec.push_back(pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(hosts,j,day,totalDay))));
                     }
                     
                 }
@@ -78,14 +70,14 @@ int getBestPurchasedHost(const vector<RequestInfo>& requestInfos, int i, int day
                         if (it->first > thiscmRatioDiff)
                         {
                             flag = true;
-                            hostVec.insert(it,pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(j,day,totalDay))));
+                            hostVec.insert(it,pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(hosts,j,day,totalDay))));
                             break;
                         }
                         
                     }
                     if (flag != true)
                     {
-                        hostVec.push_back(pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(j,day,totalDay))));
+                        hostVec.push_back(pair<float,pair<int,float>>(thiscmRatioDiff,pair<int,float>(j,getCostPerFormance(hosts,j,day,totalDay))));
                     }
                 }
             }
@@ -105,7 +97,7 @@ int getBestPurchasedHost(const vector<RequestInfo>& requestInfos, int i, int day
 }
 
 #pragma mark getBestExistingHost
-pair<int, Node> getBestExistingHost(int vmCpu, int vmMm, bool isDuetOfVm, float cmRatioOfVm, vector<PurchasedHost>* purchasedHosts, vector<pair<int, Node>>& budgetPurchasedHosts)
+pair<int, Node> getBestExistingHost(int vmCpu, int vmMm, bool isDuetOfVm, float cmRatioOfVm, float mincmRatioDiff,  vector<PurchasedHost>* purchasedHosts, vector<pair<int, Node>>& budgetPurchasedHosts)
 {
     pair<int, Node> returnResult(-1,A);
     for(int j = 0; j < purchasedHosts->size(); ++j)
@@ -160,7 +152,7 @@ pair<int, Node> getBestExistingHost(int vmCpu, int vmMm, bool isDuetOfVm, float 
     return returnResult;
 }
 
-float getDiffOfAandB(int r, pair<int, Node> test, int vmCpu, int vmMm)
+float getDiffOfAandB(vector<PurchasedHost> *purchasedHosts, int r, pair<int, Node> test, int vmCpu, int vmMm)
 {
     float AusedCpu = purchasedHosts->at(test.first).cpu / 2 - purchasedHosts->at(test.first).remainCpuA;
     float AusedMm = purchasedHosts->at(test.first).mm / 2 - purchasedHosts->at(test.first).remainMmA;
@@ -176,7 +168,7 @@ float getDiffOfAandB(int r, pair<int, Node> test, int vmCpu, int vmMm)
         //     cout << "hostOneSideCpu="<< purchasedHosts->at(test.first).cpu / 2 <<",hostOneSideMm=" << purchasedHosts->at(test.first).mm / 2 << endl;
         //     cout << "AremainCpu=" << purchasedHosts->at(test.first).remainCpuA << ",AremainMm=" << purchasedHosts->at(test.first).remainMmA << endl;
         // }
-        return fabs(AusedCpu + vmCpu + AusedMm + vmMm - BusedCpu - BusedMm) / (purchasedHosts->at(test.first).cpu + purchasedHosts->at(test.first).mm); 
+        return fabs(AusedCpu + vmCpu + AusedMm + vmMm - BusedCpu - BusedMm) / (purchasedHosts->at(test.first).cpu + purchasedHosts->at(test.first).mm);
     }
         
 else    // if(test.second == B)
@@ -188,7 +180,7 @@ else    // if(test.second == B)
         //     cout << "hostOneSideCpu="<< purchasedHosts->at(test.first).cpu / 2 <<",hostOneSideMm=" << purchasedHosts->at(test.first).mm / 2 << endl;
         //     cout << "BremainCpu=" << purchasedHosts->at(test.first).remainCpuB << ",BremainMm=" << purchasedHosts->at(test.first).remainMmB << endl;
         // }
-        return fabs(BusedCpu + vmCpu + BusedMm + vmMm - AusedCpu - AusedMm) / (purchasedHosts->at(test.first).cpu + purchasedHosts->at(test.first).mm); 
+        return fabs(BusedCpu + vmCpu + BusedMm + vmMm - AusedCpu - AusedMm) / (purchasedHosts->at(test.first).cpu + purchasedHosts->at(test.first).mm);
     }
 }
 
@@ -202,58 +194,83 @@ else    // if(test.second == B)
     
 // }
 
+
 #pragma mark main
 int main(){
+    
+#pragma mark INPUT_DATASTRUCTURE
+    vector<Host> hosts;
+    //虚拟机类型到信息的映射
+    unordered_map <string, VmProperties> vms;
+    int dayCount = 0, requestCount = 0, K_DayCount = 0;
+    vector<RequestInfo> requestInfos;
+    vector<RequestInfo> requestInfos_backup;
+    
+    string tmp, infoType, vmType, vmId;
+    
+#pragma mark RUNTIME_DATASTRUCTURE
     map<int, int> todayPurchasePlan;
     int count = 0;
     list<pair<int,pair<int,Node>>> migrateInfos;
     int totalNumOfMigrate = 0;
     int addCount=0;
-   int currentNumVms=0;
-// #ifndef LOCAL
-   //提交时注释掉
-//    clock_t start, finish;
-//    start = clock();
-//    const string filePath = "D:\\training-1.txt";
-//    //输入
-//    if(freopen(filePath.c_str(),"rb", stdin)){
-// #endif
-    getHostsAndVms();
+    int currentNumVms=0;
+
+    vector<PurchasedHost> a;
+    //已购买的主机
+    vector<PurchasedHost>* purchasedHosts = &a;
+    //虚拟机id到其节点的映射
+    unordered_map <int, DeployedVM*> vmIdToDeployedVM;
+    
+    bool isDuetOfVm;
+    float cmRatioOfVm, mincmRatioDiff;
+    PurchasedHost* bestHost;
+    int bestHostIndex;
+    Node bestHostNode;
+    pair<int, Node> bestHostPair;
+    
+ #ifndef LOCAL
+//   提交时注释掉
+    clock_t start, finish;
+    start = clock();
+    const string filePath = "/Users/jesse/Desktop/CodeCraft/training-data/training-1.txt";
+    //输入
+    if(freopen(filePath.c_str(),"rb", stdin)){
+ #endif
+    //解析主机和虚拟机信息
+    getHostsAndVms(hosts, vms);
     //解析用户请求天数
-    int dayCount = 0, requestCount = 0;
-    // int lastDayVmCount = 0;
-    // int todayIncreaseVmCount = 0;
     scanf("%d",&dayCount);
-    string tmp,infoType,vmType,vmId;
+    scanf("%d",&K_DayCount);
     int lastDayPurchasedHostCount = purchasedHosts->size();
     
     //开始处理每天的请求
     for(int day = 0; day < dayCount; day++){
-          currentNumVms += addCount;
+        currentNumVms += addCount;
         addCount = 0;
         migrateInfos.clear();
-        // cout<<currentNumVms<< " "<<(currentNumVms*5)/1000<<endl;
-        migrantBeforeDeployed(*purchasedHosts,migrateInfos,(currentNumVms*5)/1000);
+        migrantBeforeDeployed((currentNumVms*5)/1000, *purchasedHosts, vms, migrateInfos, vmIdToDeployedVM);
         scanf("%d",&requestCount);
         requestInfos.clear();
-        //todayIncreaseVmCount = 0;
+        requestInfos_backup.clear();
+        
         for(int i = 0; i < requestCount; i++){
             cin>>infoType;
             if(infoType[1] == 'a'){
                 addCount++;
                 cin>>vmType>>vmId;
-                generateRequest(vmType,vmId);
+                generateRequest(requestInfos, requestInfos_backup, vmType, vmId);
                 //++todayIncreaseVmCount;
             }
             else{
                 addCount--;
                 cin>>vmId;
-                generateRequest(vmId);
+                generateRequest(requestInfos, requestInfos_backup, vmId);
                 //--todayIncreaseVmCount;
             }
         }
         
-        vector<RequestInfo> requestInfos_backup(requestInfos);
+        
 
         int lastDelRequestEndIndex = -1;
         for(int k = 0; k < requestCount; ++k)
@@ -286,7 +303,7 @@ int main(){
                         
 
                         // 尝试在已有的主机上部署
-                        bestHostPair = getBestExistingHost(vms[requestInfos_backup[i].vmType].cpu, vms[requestInfos_backup[i].vmType].mm, isDuetOfVm, cmRatioOfVm, purchasedHosts, budgetPurchasedHosts);
+                        bestHostPair = getBestExistingHost(vms[requestInfos_backup[i].vmType].cpu, vms[requestInfos_backup[i].vmType].mm, isDuetOfVm, cmRatioOfVm, mincmRatioDiff, purchasedHosts, budgetPurchasedHosts);
                         bestHostIndex = bestHostPair.first;
                         bestHostNode = bestHostPair.second;
                        
@@ -294,7 +311,7 @@ int main(){
                         if(bestHostIndex == -1)
                         {
                             
-                            int newHostIndex = getBestPurchasedHost(requestInfos_backup, i, day, dayCount);
+                            int newHostIndex = getBestPurchasedHost(hosts,vms,requestInfos_backup, i, day, dayCount, isDuetOfVm, cmRatioOfVm);
                             bestHost = new PurchasedHost(newHostIndex, hosts[newHostIndex].cpu, hosts[newHostIndex].mm);
                             purchasedHosts->push_back(*bestHost);
                             bestHost = &purchasedHosts->back();
@@ -303,13 +320,13 @@ int main(){
                             if(isDuetOfVm)
                             {
                                 // bestHost->isDuet = true;
-                                bestHost->addBoth(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day);
+                                bestHost->addBoth(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day, vmIdToDeployedVM, vms);
                                 // migrationBoth();
                             }
                             else
                             {
                                 // bestHost->isDuet = false;
-                                bestHost->addSingleA(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day);
+                                bestHost->addSingleA(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day, vmIdToDeployedVM, vms);
                                 // migrationSingle();
                             }
 
@@ -319,7 +336,7 @@ int main(){
                         {
                             bestHost = &purchasedHosts->at(bestHostIndex);
                             if(isDuetOfVm)
-                                bestHost->addBoth(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day);
+                                bestHost->addBoth(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day, vmIdToDeployedVM, vms);
                             else
                             {
                                 int standByHostCount = min(5, (int)budgetPurchasedHosts.size());
@@ -329,7 +346,7 @@ int main(){
                                 for(int r = budgetPurchasedHosts.size() - standByHostCount; r < budgetPurchasedHosts.size(); ++r)
                                 {
                                     //cout << r << endl;
-                                    float thisDiffOfAandB = getDiffOfAandB(r, budgetPurchasedHosts[r], vms[requestInfos_backup[i].vmType].cpu, vms[requestInfos_backup[i].vmType].mm);
+                                    float thisDiffOfAandB = getDiffOfAandB(purchasedHosts, r, budgetPurchasedHosts[r], vms[requestInfos_backup[i].vmType].cpu, vms[requestInfos_backup[i].vmType].mm);
                                     if(thisDiffOfAandB < minDiffOfAandB)
                                     {
                                         minDiffOfAandB = thisDiffOfAandB;
@@ -341,9 +358,9 @@ int main(){
                                 //cout << "turn finish" << endl;
 
                                 if(bestHostNode == A)
-                                    bestHost->addSingleA(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day);
+                                    bestHost->addSingleA(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day, vmIdToDeployedVM, vms);
                                 else if(bestHostNode == B)
-                                    bestHost->addSingleB(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day);
+                                    bestHost->addSingleB(requestInfos_backup[i].vmType, bestHostIndex, requestInfos_backup[i].vmId, day, vmIdToDeployedVM, vms);
                             }
                         }
                     }
@@ -355,7 +372,7 @@ int main(){
                 if(endpos == k && requestInfos[k].infoType == del)
                 {
                     count++;
-                    purchasedHosts->at(vmIdToDeployedVM[requestInfos[k].vmId]->host).delvm(*vmIdToDeployedVM[requestInfos[k].vmId]);
+                    purchasedHosts->at(vmIdToDeployedVM[requestInfos[k].vmId]->host).delvm(*vmIdToDeployedVM[requestInfos[k].vmId], vms);
                 }// 为了防止最后一条请求是add
                 lastDelRequestEndIndex = k;
             }
@@ -396,17 +413,16 @@ int main(){
             
         }
         
-        outputDeploymentResult();
+        outputDeploymentResult(requestInfos, vmIdToDeployedVM);
      }
   
-// #ifndef LOCAL
-//    }
-//    finish = clock();
-//    printf("\nnumber of purchasedhost: %lu \n", purchasedHosts->size());
-//    printf("\nnumber of migrate: %lu \n", totalNumOfMigrate);
-//    printf("\nuse time: %f s \n",double(finish - start) / CLOCKS_PER_SEC);
-//    printf("\nbreak point\n");
-// #endif
+ #ifndef LOCAL
+    }
+    finish = clock();
+    printf("\nnumber of purchasedhost: %lu \n", purchasedHosts->size());
+    printf("\nnumber of migrate: %d \n", totalNumOfMigrate);
+    printf("\nuse time: %f s \n",double(finish - start) / CLOCKS_PER_SEC);
+ #endif
     return 0;
 }
 
