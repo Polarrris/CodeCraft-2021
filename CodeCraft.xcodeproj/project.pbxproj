@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		8826ED062605C6CB00269365 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8826ED042605C6CB00269365 /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		883DC32B25FAFDB90095A8D4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 883DC32A25FAFDB90095A8D4 /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
-		88B3917026159E7100398F66 /* CodeCraft-2021.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
+		88A4602E2622BD48005316B5 /* CodeCraft-2021.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88A4602A2622BD48005316B5 /* CodeCraft-2021.cpp */; };
 		88C1DA4E260379C4005AF32D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 88C1DA4D260379C4005AF32D /* main.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 /* End PBXBuildFile section */
 
@@ -73,10 +73,10 @@
 		883DC32725FAFDB90095A8D4 /* CodeCraft */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CodeCraft; sourceTree = BUILT_PRODUCTS_DIR; };
 		883DC32A25FAFDB90095A8D4 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88A150EB26042F4900E235DD /* JudgeSystem */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = JudgeSystem; sourceTree = BUILT_PRODUCTS_DIR; };
-		88B3916C26159E7100398F66 /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
-		88B3916D26159E7100398F66 /* DataStructure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStructure.h; sourceTree = "<group>"; };
-		88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CodeCraft-2021.cpp"; sourceTree = "<group>"; };
-		88B3916F26159E7100398F66 /* Output.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Output.h; sourceTree = "<group>"; };
+		88A4602A2622BD48005316B5 /* CodeCraft-2021.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "CodeCraft-2021.cpp"; sourceTree = "<group>"; };
+		88A4602B2622BD48005316B5 /* Output.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Output.h; sourceTree = "<group>"; };
+		88A4602C2622BD48005316B5 /* Input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Input.h; sourceTree = "<group>"; };
+		88A4602D2622BD48005316B5 /* DataStructure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStructure.h; sourceTree = "<group>"; };
 		88BDEFED25FF5E3600D0C898 /* DataStructure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataStructure.h; sourceTree = "<group>"; };
 		88C1DA4D260379C4005AF32D /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		88C3BD4525FDB9E5005AACEC /* TestTarget */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestTarget; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -125,10 +125,10 @@
 		8826EC7F2604D87000269365 /* CodeCraftV1.X */ = {
 			isa = PBXGroup;
 			children = (
-				88B3916E26159E7100398F66 /* CodeCraft-2021.cpp */,
-				88B3916D26159E7100398F66 /* DataStructure.h */,
-				88B3916C26159E7100398F66 /* Input.h */,
-				88B3916F26159E7100398F66 /* Output.h */,
+				88A4602A2622BD48005316B5 /* CodeCraft-2021.cpp */,
+				88A4602D2622BD48005316B5 /* DataStructure.h */,
+				88A4602C2622BD48005316B5 /* Input.h */,
+				88A4602B2622BD48005316B5 /* Output.h */,
 			);
 			path = CodeCraftV1.X;
 			sourceTree = "<group>";
@@ -327,7 +327,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88B3917026159E7100398F66 /* CodeCraft-2021.cpp in Sources */,
+				88A4602E2622BD48005316B5 /* CodeCraft-2021.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
